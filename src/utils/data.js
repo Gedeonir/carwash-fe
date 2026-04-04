@@ -1,0 +1,111 @@
+export const BOOKINGS = [
+  {
+    id: "IK-001",
+    customer: "Amira Kagabo",
+    service: "Premium Detail",
+    time: "09:00",
+    location: "Kimihurura",
+    status: "in-progress",
+    washer: "Jean N.",
+    amount: 18000,
+  },
+  {
+    id: "IK-002",
+    customer: "James Mukuralinda",
+    service: "Standard",
+    time: "10:30",
+    location: "Kiyovu",
+    status: "heading",
+    washer: "Pascal M.",
+    amount: 10000,
+  },
+  {
+    id: "IK-003",
+    customer: "Claudine Uwera",
+    service: "Basic Wash",
+    time: "11:00",
+    location: "Remera",
+    status: "confirmed",
+    washer: "Eric K.",
+    amount: 5000,
+  },
+  {
+    id: "IK-004",
+    customer: "David Bizimana",
+    service: "Standard",
+    time: "13:00",
+    location: "Gisozi",
+    status: "confirmed",
+    washer: "Unassigned",
+    amount: 10000,
+  },
+  {
+    id: "IK-005",
+    customer: "Marie Iradukunda",
+    service: "Premium Detail",
+    time: "14:30",
+    location: "Nyamirambo",
+    status: "completed",
+    washer: "Jean N.",
+    amount: 18000,
+  },
+  {
+    id: "IK-006",
+    customer: "Patrick Nsabimana",
+    service: "Basic Wash",
+    time: "15:00",
+    location: "Kibagabaga",
+    status: "completed",
+    washer: "Pascal M.",
+    amount: 5000,
+  },
+];
+
+export const WASHERS = [
+  {
+    name: "Jean Nkurunziza",
+    status: "busy",
+    rating: 4.9,
+    jobs: 2,
+    zone: "Kimihurura",
+    avatar: "JN",
+  },
+  {
+    name: "Pascal Mugisha",
+    status: "heading",
+    rating: 4.8,
+    jobs: 1,
+    zone: "Kiyovu",
+    avatar: "PM",
+  },
+  {
+    name: "Eric Kayumba",
+    status: "available",
+    rating: 4.7,
+    jobs: 0,
+    zone: "Remera",
+    avatar: "EK",
+  },
+  {
+    name: "Alice Mutoni",
+    status: "available",
+    rating: 4.9,
+    jobs: 0,
+    zone: "CBD",
+    avatar: "AM",
+  },
+];
+
+export const STATUS_CONFIG = {
+  confirmed: { label: "Confirmed", variant: "info" },
+  heading: { label: "En Route", variant: "warning" },
+  "in-progress": { label: "In Progress", variant: "primary" },
+  completed: { label: "Completed", variant: "success" },
+  cancelled: { label: "Cancelled", variant: "error" },
+};
+
+export const WASHER_STATUS = {
+  available: "bg-success/15 text-success",
+  busy: "bg-warning/15 text-warning",
+  heading: "bg-info/15 text-info",
+};
