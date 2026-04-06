@@ -135,7 +135,7 @@ const Overview = () => {
     <DashboardLayout>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="font-display text-3xl text-white">
+          <h1 className="font-display text-3xl text-surface-900">
             Good morning, Admin 👋
           </h1>
           <p className="text-surface-400 text-sm mt-1">
@@ -235,7 +235,7 @@ const Overview = () => {
       {/* Active bookings quick view */}
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="p-5">
-          <h3 className="font-display text-base text-white mb-4">
+          <h3 className="font-display text-base text-surface-900 mb-4">
             Active right now
           </h3>
           <div className="space-y-3">
@@ -255,7 +255,7 @@ const Overview = () => {
                       .join("")}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-white truncate">
+                    <div className="text-sm font-medium text-surface-900 truncate">
                       {b.customer}
                     </div>
                     <div className="text-xs text-surface-400">
@@ -280,7 +280,7 @@ const Overview = () => {
                   {w.avatar}
                 </div>
                 <div className="flex-1">
-                  <div className="text-sm font-medium text-white">{w.name}</div>
+                  <div className="text-sm font-medium text-surface-900">{w.name}</div>
                   <div className="text-xs text-surface-400">
                     {w.zone} · ⭐ {w.rating}
                   </div>

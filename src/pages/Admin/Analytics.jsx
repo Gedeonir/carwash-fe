@@ -6,7 +6,7 @@ import { Card, Badge, StatCard, Button, TopBar } from "../../components/UI";
 const Analytics = () => {
   return (
     <DashboardLayout>
-      <h1 className="font-display text-2xl text-white mb-6">
+      <h1 className="font-display text-2xl text-surface-900 mb-6">
         Reports & Analytics
       </h1>
       <div className="grid md:grid-cols-3 gap-4 mb-6">
@@ -86,10 +86,10 @@ const Analytics = () => {
           ].map(([name, price, pct]) => (
             <div key={name} className="mb-4">
               <div className="flex justify-between text-sm mb-1.5">
-                <span className="text-surface-300">{name}</span>
-                <span className="text-white">{pct}%</span>
+                <span className="text-surface-500">{name}</span>
+                <span className="text-surface-900">{pct}%</span>
               </div>
-              <div className="h-2 bg-surface-700 rounded-full overflow-hidden">
+              <div className="h-2 bg-primary-200 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary-500 rounded-full"
                   style={{ width: `${pct}%` }}
@@ -112,10 +112,10 @@ const Analytics = () => {
           ].map(([zone, pct]) => (
             <div key={zone} className="mb-4">
               <div className="flex justify-between text-sm mb-1.5">
-                <span className="text-surface-300">{zone}</span>
-                <span className="text-white">{pct}%</span>
+                <span className="text-surface-500">{zone}</span>
+                <span className="text-surface-900">{pct}%</span>
               </div>
-              <div className="h-2 bg-surface-700 rounded-full overflow-hidden">
+              <div className="h-2 bg-accent-500 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-accent-400 rounded-full"
                   style={{ width: `${pct}%` }}

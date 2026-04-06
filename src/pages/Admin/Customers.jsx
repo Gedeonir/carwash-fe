@@ -75,7 +75,7 @@ const Customers = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium text-white text-sm">
+                    <span className="font-medium text-surface-900 text-sm">
                       {c.name}
                     </span>
                     <span

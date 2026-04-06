@@ -98,8 +98,8 @@ export function Badge({ children, variant = "primary" }) {
   const variants = {
     primary: "bg-surface-900 text-white border-primary-500/25",
     accent:  "bg-white/10 text-surface-900 border-surface-900",
-    success: "bg-success/15 text-success border-success",
-    warning: "bg-warning/15 text-warning border-warning/25",
+    success: "bg-success bg-opacity-20 text-success border-success",
+    warning: "bg-warning bg-opacity-20 text-warning border-warning",
     error:   "bg-error/15 text-error border-error/25",
     info:    "bg-info bg-opacity-20 text-info border-info/25",
   };
@@ -187,7 +187,7 @@ export function ProgressSteps({ steps, current }) {
 // ── Stat Card ─────────────────────────────────────────────
 export function StatCard({ label, value, icon, trend, color = "primary" }) {
   const colors = {
-    primary: "bg-primary-500/15 text-primary-400",
+    primary: "bg-primary-500/15 text-primary-600",
     accent:  "bg-white/10 text-white",
     success: "bg-success/10 text-success",
     info:    "bg-info/10 text-info",
@@ -204,7 +204,7 @@ export function StatCard({ label, value, icon, trend, color = "primary" }) {
           </Badge>
         )}
       </div>
-      <div className="text-2xl font-display text-white mb-0.5">{value}</div>
+      <div className="text-2xl font-display text-surface-900 mb-0.5">{value}</div>
       <div className="text-sm text-surface-400">{label}</div>
     </Card>
   );

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button, Input, Card } from "../components/UI";
+import NavBar from "../components/NavBar";
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" className="flex-shrink-0">
@@ -225,12 +226,13 @@ export default function AuthPage({ navigate }) {
 
   return (
     <div className="min-h-screen bg-surface-100 flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden">
+      <NavBar />
       {/* Background */}
       <div className="absolute -top-40 -left-40 w-[400px] h-[400px] bg-primary-500/8 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-40 -right-40 w-[350px] h-[350px] bg-primary-500/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute inset-0 bg-grid-yellow pointer-events-none" />
 
-      <div className="relative z-10 w-full max-w-sm">
+      <div className="relative z-10 w-full max-w-sm pt-20">
         {/* Logo */}
         <div className="text-center mb-8">
           <button onClick={() => navigate("landing")} className="font-display text-3xl text-surface-900 hover:opacity-80 transition-opacity">

@@ -23,14 +23,14 @@ export const Bookings = () => {
   return (
     <DashboardLayout>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl text-white">Bookings</h1>
+        <h1 className="font-display text-2xl text-surface-900">Bookings</h1>
         <div className="flex gap-2">
           {["all", "confirmed", "heading", "in-progress", "completed"].map(
             (s) => (
               <button
                 key={s}
                 onClick={() => setFilterStatus(s)}
-                className={`text-xs px-3 py-1.5 rounded-lg border transition-all capitalize ${filterStatus === s ? "bg-primary-500 border-primary-500 text-surface-900" : "border-white/10 text-surface-400 hover:text-white hover:border-white/25"}`}
+                className={`text-xs px-3 py-1.5 rounded-lg border transition-all capitalize ${filterStatus === s ? "bg-primary-500 border-primary-500 text-surface-900" : "border-white/10 text-surface-400 hover:text-surface-900 hover:border-white/25"}`}
               >
                 {s === "all" ? "All" : s.replace("-", " ")}
               </button>
@@ -70,7 +70,7 @@ export const Bookings = () => {
                   <td className="py-3.5 pr-4 text-xs font-mono text-surface-500">
                     {b.id}
                   </td>
-                  <td className="py-3.5 pr-4 text-sm text-white font-medium">
+                  <td className="py-3.5 pr-4 text-sm text-surface-900 font-medium">
                     {b.customer}
                   </td>
                   <td className="py-3.5 pr-4 text-sm text-surface-300">
@@ -85,7 +85,7 @@ export const Bookings = () => {
                   <td className="py-3.5 pr-4 text-sm text-surface-300">
                     {b.washer}
                   </td>
-                  <td className="py-3.5 pr-4 text-sm text-white">
+                  <td className="py-3.5 pr-4 text-sm text-primary-600">
                     {b.amount.toLocaleString()} RWF
                   </td>
                   <td className="py-3.5 pr-4">

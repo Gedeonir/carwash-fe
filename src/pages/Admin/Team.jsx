@@ -19,7 +19,7 @@ const Team = () => {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="font-medium text-white">{w.name}</h3>
+                  <h3 className="font-medium text-surface-900">{w.name}</h3>
                   <span
                     className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize ${WASHER_STATUS[w.status]}`}
                   >
@@ -39,8 +39,8 @@ const Team = () => {
                       key={l}
                       className="bg-surface-700/40 rounded-lg p-2 text-center"
                     >
-                      <div className="text-xs text-surface-400">{l}</div>
-                      <div className="text-sm font-medium text-white mt-0.5">
+                      <div className="text-xs text-surface-500">{l}</div>
+                      <div className="text-sm font-medium text-surface-900 mt-0.5">
                         {v}
                       </div>
                     </div>

@@ -195,7 +195,7 @@ export default function ServicesPage({ navigate }) {
         <div className="mb-10">
           <h2 className="font-display text-xl text-surface-900 mb-1">Add-ons</h2>
           <p className="text-sm text-surface-500 mb-4">Enhance any package with optional extras</p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {ADDONS.map((a) => (
               <Card key={a.id} className="p-4 hover:border-primary-500/25 transition-all">
                 <div className="text-2xl mb-3">{a.icon}</div>

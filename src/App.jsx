@@ -1,12 +1,12 @@
 import { useState } from "react";
-import LandingPage from "./pages/LandingPage";
-import AuthPage from "./pages/AuthPage";
+import LandingPage from "./pages/Landingpage";
+import AuthPage from "./pages/Authpage";
 import DashboardPage from "./pages/Userdashboard";
 import BookingPage from "./pages/Bookingpage";
 import LocationPage from "./pages/Locationpage";
 import ConfirmPage from "./pages/Confirmpage";
 import TrackingPage from "./pages/Trackingpage";
-import ReviewPage from "./pages/ReviewPage";
+import ReviewPage from "./pages/Reviewpage";
 import AdminDashboard from "./pages/Admindashboard";
 import ProfilePage from "./pages/Profilepage";
 import NotificationsPage from "./pages/Notificationspage";
