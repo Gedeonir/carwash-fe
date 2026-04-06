@@ -13,7 +13,7 @@ const Footer = () => {
             © 2025 Ikinamba. All rights reserved.
           </div>
           <button
-            onClick={() => navigate("/admin")}
+            onClick={() => navigate("/admin/overview")}
             className="text-xs text-surface-600 hover:text-surface-400 transition-colors"
           >
             Admin →

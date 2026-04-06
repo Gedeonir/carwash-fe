@@ -5,9 +5,9 @@ import { WASHERS, WASHER_STATUS } from "../../utils/data";
 
 const Team = () => {
   return (
-    <DashboardLayout>
+    <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl text-white">Team Management</h1>
+        <h1 className="font-display text-2xl text-surface-900">Team Management</h1>
         <Button size="sm">+ Add Washer</Button>
       </div>
       <div className="grid md:grid-cols-2 gap-4">
@@ -51,7 +51,7 @@ const Team = () => {
           </Card>
         ))}
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

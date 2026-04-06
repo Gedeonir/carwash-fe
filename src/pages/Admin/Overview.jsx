@@ -1,6 +1,5 @@
 import React from "react";
 import { Button, StatCard, Badge, Card } from "../../components/UI";
-import DashboardLayout from "./DashboardLayout";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -132,8 +131,8 @@ const Overview = () => {
     ["in-progress", "heading"].includes(b.status),
   ).length;
   return (
-    <DashboardLayout>
-      <div className="flex items-center justify-between mb-8">
+    <div>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between justify-start gap-4 mb-8">
         <div>
           <h1 className="font-display text-3xl text-surface-900">
             Good morning, Admin 👋
@@ -295,7 +294,7 @@ const Overview = () => {
           </div>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

@@ -5,9 +5,9 @@ import { BOOKINGS } from "../../utils/data";
 
 const Customers = () => {
   return (
-    <DashboardLayout>
+    <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl text-white">Customer Accounts</h1>
+        <h1 className="font-display text-2xl text-surface-900">Customer Accounts</h1>
         <div className="text-sm text-surface-400">Total: 247 customers</div>
       </div>
       <div className="flex flex-col gap-3">
@@ -103,7 +103,7 @@ const Customers = () => {
           );
         })}
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

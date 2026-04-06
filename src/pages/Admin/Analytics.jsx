@@ -5,7 +5,7 @@ import { Card, Badge, StatCard, Button, TopBar } from "../../components/UI";
 
 const Analytics = () => {
   return (
-    <DashboardLayout>
+    <div>
       <h1 className="font-display text-2xl text-surface-900 mb-6">
         Reports & Analytics
       </h1>
@@ -125,7 +125,7 @@ const Analytics = () => {
           ))}
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

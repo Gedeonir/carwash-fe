@@ -71,20 +71,23 @@ const reviews = [
 export default function LandingPage({ navigate }) {
   return (
     <div className="min-h-screen bg-surface-100">
-        <NavBar/>   
+      <NavBar />
       {/* HERO */}
-      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-        {/* Ambient */}
-        <div className="absolute -top-32 -left-32 w-[500px] h-[500px] bg-primary-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -right-24 w-[400px] h-[400px] bg-accent-400/8 rounded-full blur-3xl pointer-events-none" />
-        {/* Grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,201,177,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(0,201,177,0.04)_1px,transparent_1px)] bg-[size:52px_52px] pointer-events-none" />
-
+      <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+                {/* Grid — dark charcoal lines, visible on light surface */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(10,10,10,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(10,10,10,0.06) 1px, transparent 1px)",
+            backgroundSize: "52px 52px",
+          }}
+        />
         <div className="w-full mx-auto px-6 grid md:grid-cols-2 gap-16 items-center relative z-10">
           <div>
-            <div className="inline-flex items-center gap-2.5 bg-primary-500/10 border border-primary-500/25 rounded-full px-4 py-2 mb-8">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse" />
-              <span className="text-xs font-medium text-primary-500 tracking-widest uppercase">
+            <div className="inline-flex items-center gap-2.5 bg-primary-500 border border-primary-500/25 rounded-full px-4 py-2 mb-8">
+              <span className="w-1.5 h-1.5 rounded-full bg-info animate-pulse" />
+              <span className="text-xs font-medium text-surface-900 tracking-widest uppercase">
                 Available everywhere
               </span>
             </div>
@@ -102,7 +105,7 @@ export default function LandingPage({ navigate }) {
               Eco-friendly, fast, and built around your schedule.
             </p>
             <div className="flex flex-wrap gap-4 mb-12">
-              <Button size="lg" onClick={() => navigate("auth")}>
+              <Button size="sm" onClick={() => navigate("auth")}>
                 Book a Wash
               </Button>
               <Button
@@ -442,7 +445,7 @@ export default function LandingPage({ navigate }) {
       </section>
 
       {/* CTA */}
-      <section className="py-12 px-6">
+      <section className="py-12 px-4 md:px-6">
         <div className="w-full mx-auto text-center bg-gradient-to-br from-surface-800 to-surface-900 border border-primary-500/20 rounded-3xl p-16">
           <h2 className="font-display text-4xl md:text-5xl text-white mb-4">
             Ready for a{" "}

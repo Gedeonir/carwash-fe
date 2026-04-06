@@ -49,6 +49,7 @@ const NavBar = () => {
         <Button
           className="ml-auto md:hidden"
           variant="outline"
+          size="sm"
           onClick={() => setOpen(!open)}
         >
           <Menu size={20} />
@@ -57,7 +58,7 @@ const NavBar = () => {
 
       {/* Mobile Menu */}
       {open && (
-        <div className="md:hidden px-6 pb-4 flex flex-col gap-4 bg-surface-50">
+        <div className="md:hidden px-6 pb-4 flex flex-col gap-4 bg-surface-50 min-h-screen">
           {links.map(([l, p]) => (
             <a
               key={l}

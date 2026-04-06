@@ -7,7 +7,6 @@ import LocationPage from "./pages/Locationpage";
 import ConfirmPage from "./pages/Confirmpage";
 import TrackingPage from "./pages/Trackingpage";
 import ReviewPage from "./pages/Reviewpage";
-import AdminDashboard from "./pages/Admindashboard";
 import ProfilePage from "./pages/Profilepage";
 import NotificationsPage from "./pages/Notificationspage";
 import ServicesPage from "./pages/Servicespage";
@@ -42,12 +41,19 @@ export default function App() {
       <Route path="/tracking" element={<TrackingPage {...sharedProps}/>} />
       <Route path="/review" element={<ReviewPage {...sharedProps}/>} />
 
-      <Route path="/admin/overview" element={<Overview {...sharedProps}/>} />
-      <Route path="/admin/bookings" element={<Bookings {...sharedProps}/>} />
-      <Route path="/admin/customers" element={<Customers {...sharedProps}/>} />
-      <Route path="/admin/team" element={<Team {...sharedProps}/>} />
-      <Route path="/admin/analytics" element={<Analytics {...sharedProps}/>} />
-      <Route path="/admin" element={<DashboardLayout {...sharedProps}/>} />
+      <Route
+        path="/admin/*"
+        element={
+            <DashboardLayout />
+        }
+      >
+      <Route index path="overview" element={<Overview {...sharedProps}/>} />
+      <Route path="bookings" element={<Bookings {...sharedProps}/>} />
+      <Route path="customers" element={<Customers {...sharedProps}/>} />
+      <Route path="team" element={<Team {...sharedProps}/>} />
+      <Route path="analytics" element={<Analytics {...sharedProps}/>} />
+      </Route>
+
       <Route path="/profile" element={<ProfilePage {...sharedProps}/>} />
       <Route path="/notifications" element={<NotificationsPage {...sharedProps}/>} />
       <Route path="*" element={<NotFound />} />
