@@ -6,9 +6,6 @@ const Footer = () => {
   return (
       <footer className="border-t border-white/6 py-4 px-6">
         <div className="mx-auto flex flex-wrap justify-between items-center gap-4">
-          <div className="font-display text-xl text-surface-900">
-            Ikinamba<span className="text-primary-500">.</span>
-          </div>
           <div className="text-sm text-surface-500">
             © 2025 Ikinamba. All rights reserved.
           </div>

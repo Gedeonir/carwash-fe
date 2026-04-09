@@ -151,8 +151,8 @@ export function ProgressSteps({ steps, current }) {
                 i < current
                   ? "bg-primary-500 border-primary-500 text-surface-900"
                   : i === current
-                  ? "bg-surface-800 border-primary-500 text-primary-500"
-                  : "bg-surface-800 border-white/10 text-surface-500"
+                  ? "bg-surface-800 border-primary-500 text-primary-600"
+                  : "bg-surface-800 border-white/10 text-surface-600"
               }`}
             >
               {i < current ? (
@@ -165,7 +165,7 @@ export function ProgressSteps({ steps, current }) {
             </div>
             <span
               className={`text-xs mt-1 whitespace-nowrap ${
-                i === current ? "text-primary-400" : "text-surface-500"
+                i === current ? "text-primary-500" : "text-surface-600"
               }`}
             >
               {step}

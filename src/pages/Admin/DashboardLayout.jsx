@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Badge, Card, Button } from "../../components/UI";
 import { Menu } from "lucide-react";
+import logo from "../../assets/car_wash_logo.png";
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = () => {
   const [open, setOpen] = useState(false);
 
   const TABS = [
@@ -19,18 +20,19 @@ const DashboardLayout = ({ children }) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-surface-100">
-      
       {/* NAVBAR */}
       <div className="sticky top-0 z-40 bg-surface-50 backdrop-blur-md border-b border-white/6">
         <div className="max-w-7xl mx-auto flex items-center px-4 md:px-6 py-3 md:py-4 gap-3">
-          
-          {/* Logo */}
-          <button
-            onClick={() => navigate("/admin/overview")}
-            className="font-display text-lg md:text-xl text-surface-900 flex items-center gap-1"
-          >
-            Ikinamba<span className="text-primary-500">.</span>
-          </button>
+          <div className="w-12 h-12 relative rounded-full overflow-hidden">
+            <img
+              src={logo}
+              alt="Ikinamba Logo"
+              className="w-full h-full object-cover drop-shadow-[0_20px_40px_rgba(0,201,177,0.12)]"
+            />
+          </div>
+          <div className="font-display text-lg text-surface-900">
+            Mobile Ikinamba<span className="text-primary-500">.</span>
+          </div>
 
           {/* Badge (hide on small) */}
           <div className="hidden sm:block">

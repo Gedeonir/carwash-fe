@@ -1,7 +1,7 @@
 import Footer from "../components/Footer";
 import NavBar from "../components/NavBar";
 import { Button, Badge } from "../components/UI";
-
+import logo from "../assets/car_wash_logo.png";
 const services = [
   {
     name: "Basic Wash",
@@ -74,7 +74,7 @@ export default function LandingPage({ navigate }) {
       <NavBar />
       {/* HERO */}
       <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
-                {/* Grid — dark charcoal lines, visible on light surface */}
+        {/* Grid — dark charcoal lines, visible on light surface */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -91,12 +91,12 @@ export default function LandingPage({ navigate }) {
                 Available everywhere
               </span>
             </div>
-            <h1 className="font-display text-5xl md:text-7xl leading-[0.95] mb-6 text-surface-900">
-              Your car,
-              <span className="text-primary-500 italic">washed</span>
+            <h1 className="font-display text-5xl md:text-5xl leading-[0.95] mb-6 text-surface-900">
+              Your car{" "}
+              <span className="text-primary-500 italic">can be washed</span>
               <br />
               <span className="relative">
-                anywhere.
+                from anywhere.
                 <span className="absolute bottom-1 left-0 right-0 h-0.5 bg-surface-900 rounded-full" />
               </span>
             </h1>
@@ -135,7 +135,7 @@ export default function LandingPage({ navigate }) {
           {/* Visual */}
           <div className="relative hidden md:flex justify-center">
             <div className="absolute inset-0 bg-primary-500/10 rounded-full blur-3xl" />
-            <svg
+            {/* <svg
               viewBox="0 0 520 300"
               className="relative z-10 w-full max-w-lg drop-shadow-[0_32px_60px_rgba(0,0,0,0.7)]"
             >
@@ -283,7 +283,15 @@ export default function LandingPage({ navigate }) {
                   <circle key={`${x}${y}`} cx={x} cy={y} r={r} opacity={o} />
                 ))}
               </g>
-            </svg>
+            </svg> */}
+
+            <div className="w-2/4 h-full relative">
+              <img
+                src={logo}
+                alt="Ikinamba Logo"
+                className="w-full h-full object-cover drop-shadow-[0_20px_40px_rgba(0,201,177,0.12)]"
+              />
+            </div>
 
             {/* Floating cards */}
             <div

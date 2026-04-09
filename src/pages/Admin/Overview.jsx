@@ -2,6 +2,7 @@ import React from "react";
 import { Button, StatCard, Badge, Card } from "../../components/UI";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import logo from "../../assets/car_wash_logo.png";
 
 const BOOKINGS = [
   {

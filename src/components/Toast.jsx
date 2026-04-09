@@ -34,7 +34,7 @@ const ICONS = {
 };
 
 const STYLES = {
-  success: "border-success/30 bg-success/10 text-success",
+  success: "border-success/30 bg-success text-success",
   error:   "border-error/30 bg-error/10 text-error",
   warning: "border-primary-500/40 bg-primary-500/10 text-primary-400",
   info:    "border-info/30 bg-info/10 text-info",

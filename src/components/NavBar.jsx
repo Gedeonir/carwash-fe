@@ -2,6 +2,8 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "./UI";
 import { Menu } from "lucide-react";
+import { toast } from "./Toast";
+import logo from "../assets/car_wash_logo.png";
 
 const NavBar = () => {
   const navigate = useNavigate();
@@ -10,17 +12,22 @@ const NavBar = () => {
   const [open, setOpen] = React.useState(false);
   const links = [
     ["Home", "/"],
-    ["Services", "/our-services"],
-    ["How it works", "#"],
-    ["Pricing", "#"],
-    ["Contact", "#"],
+    ["Services & Pricing", "/our-services"],
+    ["Get in Touch", "/contact"],
   ];
 
   return (
     <nav className="fixed top-0 inset-x-0 z-50 bg-surface-50 backdrop-blur-md border-b border-white/6">
       <div className="max-w-7xl mx-auto flex items-center gap-6 px-6 py-4">
-        <div className="font-display text-2xl text-surface-900">
-          Ikinamba<span className="text-primary-500">.</span>
+        <div className="w-12 h-12 relative rounded-full overflow-hidden">
+          <img
+            src={logo}
+            alt="Ikinamba Logo"
+            className="w-full h-full object-cover drop-shadow-[0_20px_40px_rgba(0,201,177,0.12)]"
+          />
+        </div>
+        <div className="font-display text-lg text-surface-900">
+          Mobile Ikinamba<span className="text-primary-500">.</span>
         </div>
         <div className="hidden md:flex gap-8 ml-10">
           {links.map(([l, p]) => (
