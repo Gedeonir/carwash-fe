@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Button, Card, Badge } from "../components/UI";
+import { Button, Card, Badge, ResponseCard } from "../components/UI";
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/UseAuth";
