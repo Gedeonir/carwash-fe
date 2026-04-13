@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button, Input, Card } from "../components/UI";
 import NavBar from "../components/NavBar";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+import { validate } from "../utils/validate";
+import { useAuth } from "../context/UseAuth";
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" className="flex-shrink-0">
@@ -165,11 +168,50 @@ function ChoosePath({ onLogin, onSignup, onGuest, onBack }) {
 }
 
 // ── SCREEN: Login form ────────────────────────────────────
-export function LoginForm({ onSubmit, onBack, onForgot, onSignUp }) {
+export function LoginForm({
+  onBack,
+  onForgot,
+  onSignUp,
+  showPassword,
+  onShowPassword,
+}) {
   const [form, setForm] = useState({ email: "", password: "" });
-  const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const { login,user } = useAuth();
+
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    validate(name, value, setErrors);
+  };
 
   const location = useLocation();
+
+  const handleLogin = async () => {
+    setErrors({});
+    if (
+      !validate("email", form.email, setErrors) ||
+      !validate("password", form.password, setErrors)
+    )
+      return;
+    setLoading(true);
+    const loginResponse = await login(form.email, form.password);
+    
+    if (loginResponse?.error) {
+      setErrors({
+        general: loginResponse.error?.data?.message || "Login failed",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (loginResponse?.user?.role === "customer") navigate("/dashboard/");
+    else if (loginResponse?.user?.role === "washer") navigate("/washer/dashboard");
+      else if (loginResponse?.user?.role === "admin") navigate("/admin/overview");
+  };
 
   return (
     <div className="w-full">
@@ -197,6 +239,15 @@ export function LoginForm({ onSubmit, onBack, onForgot, onSignUp }) {
       </h2>
       <p className="text-sm text-surface-500 mb-6">Sign in to your account</p>
 
+      {/* General error */}
+      {errors.general && (
+        <div className="mb-5 px-4 py-3 rounded-lg bg-error bg-opacity-10 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+          <p className="text-error dark:text-red-400 text-sm">
+            {errors.general}
+          </p>
+        </div>
+      )}
+
       <button className="w-full flex items-center justify-center gap-3 bg-white/5 border border-white/10 hover:bg-white/8 hover:border-white/20 rounded-xl py-3 text-sm font-medium text-surface-900 transition-all mb-5">
         <GoogleIcon /> Continue with Google
       </button>
@@ -211,9 +262,11 @@ export function LoginForm({ onSubmit, onBack, onForgot, onSignUp }) {
         <Input
           label="Email address"
           type="email"
+          name="email"
           placeholder="you@example.com"
           value={form.email}
-          onChange={set("email")}
+          onChange={handleChange}
+          error={errors.email}
           icon={
             <svg
               width="15"
@@ -231,10 +284,12 @@ export function LoginForm({ onSubmit, onBack, onForgot, onSignUp }) {
         />
         <Input
           label="Password"
-          type="password"
+          type={!showPassword ? "password" : "text"}
+          name="password"
           placeholder="••••••••"
           value={form.password}
-          onChange={set("password")}
+          onChange={handleChange}
+          error={errors.password}
           icon={
             <svg
               width="15"
@@ -248,6 +303,13 @@ export function LoginForm({ onSubmit, onBack, onForgot, onSignUp }) {
               <rect x="3" y="11" width="18" height="11" rx="2" />
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
+          }
+          eye={
+            showPassword ? (
+              <Eye size={15} onClick={onShowPassword} />
+            ) : (
+              <EyeOff size={15} onClick={onShowPassword} />
+            )
           }
         />
       </div>
@@ -264,9 +326,16 @@ export function LoginForm({ onSubmit, onBack, onForgot, onSignUp }) {
       <Button
         className="w-full mb-3"
         size="lg"
-        onClick={() => onSubmit({ ...form, isGuest: false })}
+        disabled={
+          !!errors.email ||
+          !!errors.password ||
+          !form.email ||
+          !form.password ||
+          loading
+        }
+        onClick={handleLogin}
       >
-        Sign In →
+        {loading ? "Signing in..." : "Sign In →"}
       </Button>
       {location.pathname === "/auth" && (
         <p className="text-xs text-surface-500 text-center">
@@ -284,9 +353,26 @@ export function LoginForm({ onSubmit, onBack, onForgot, onSignUp }) {
 }
 
 // ── SCREEN: Sign up form ──────────────────────────────────
-function SignupForm({ onSubmit, onBack, onSignIn }) {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
-  const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
+function SignupForm({
+  onSubmit,
+  onBack,
+  onSignIn,
+  showPassword,
+  onShowPassword,
+}) {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    password2: "",
+  });
+  const [errors, setErrors] = useState({});
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    validate(name, value, setErrors);
+  };
 
   return (
     <div className="w-full">
@@ -329,7 +415,9 @@ function SignupForm({ onSubmit, onBack, onSignIn }) {
           label="Full name"
           placeholder="Amira Kagabo"
           value={form.name}
-          onChange={set("name")}
+          name="name"
+          onChange={handleChange}
+          error={errors.name}
           icon={
             <svg
               width="15"
@@ -350,7 +438,9 @@ function SignupForm({ onSubmit, onBack, onSignIn }) {
           type="email"
           placeholder="you@example.com"
           value={form.email}
-          onChange={set("email")}
+          onChange={handleChange}
+          name="email"
+          error={errors.email}
           icon={
             <svg
               width="15"
@@ -368,10 +458,43 @@ function SignupForm({ onSubmit, onBack, onSignIn }) {
         />
         <Input
           label="Password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           placeholder="Min. 8 characters"
           value={form.password}
-          onChange={set("password")}
+          onChange={handleChange}
+          name="password"
+          error={errors.password}
+          icon={
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          }
+          eye={
+            showPassword ? (
+              <Eye size={15} onClick={onShowPassword} />
+            ) : (
+              <EyeOff size={15} onClick={onShowPassword} />
+            )
+          }
+        />
+
+        <Input
+          label="Re-enter password"
+          type={showPassword ? "text" : "password"}
+          placeholder="Min. 8 characters"
+          value={form.password2}
+          onChange={handleChange}
+          name="password2"
+          error={errors.password2}
           icon={
             <svg
               width="15"
@@ -401,8 +524,17 @@ function SignupForm({ onSubmit, onBack, onSignIn }) {
       </p>
 
       <Button
-        className="w-full mb-3"
+        className={`w-full mb-3`}
         size="lg"
+        disabled={
+          !!errors.email ||
+          !!errors.password ||
+          !!errors.password2 ||
+          !form.name ||
+          !form.email ||
+          !form.password ||
+          !form.password2
+        }
         onClick={() => onSubmit({ ...form, isGuest: false })}
       >
         Create Account →
@@ -540,14 +672,23 @@ function GuestForm({ onSubmit, onBack }) {
 
 // ── MAIN AUTH PAGE ────────────────────────────────────────
 export default function AuthPage({ navigate }) {
-  const [screen, setScreen] = useState("choose"); // choose | login | signup | guest
+  const location = useLocation();
+  const [screen, setScreen] = useState(
+    location.state?.screen ? location.state.screen : "choose",
+  ); // choose | login | signup | guest
+  const [showPassword, setShowPassword] = useState(false);
+  const { user } = useAuth();
+  const token =localStorage.getItem("token");
+  
 
-  const location=useLocation();
+
   useEffect(()=>{
-    if(location.state?.screen){
-      setScreen(location.state.screen);
+    if(user && token) {
+      if(user.role === "customer") navigate("/dashboard/");
+      else navigate("/admin/overview");
     }
-  },[location]);
+  },[])
+
   const handleSubmit = (data) => {
     if (data.isGuest) {
       // Guest → go straight to booking
@@ -593,7 +734,7 @@ export default function AuthPage({ navigate }) {
         {/* Logo */}
         <div className="text-center mb-8">
           <button
-            onClick={() => navigate("landing")}
+            onClick={() => navigate("/")}
             className="font-display text-3xl text-surface-900 hover:opacity-80 transition-opacity"
           >
             Mobile Ikinamba<span className="text-primary-500">.</span>
@@ -609,22 +750,29 @@ export default function AuthPage({ navigate }) {
               onLogin={() => setScreen("login")}
               onSignup={() => setScreen("signup")}
               onGuest={() => setScreen("guest")}
-              onBack={() => navigate("landing")}
+              onBack={() => setScreen("choose")}
             />
           )}
           {screen === "login" && (
             <LoginForm
-              onSubmit={handleSubmit}
-              onBack={() => setScreen("choose")}
+              onBack={
+                !location.state?.screen ? () => setScreen("choose") : false
+              }
               onForgot={() => {}}
               onSignUp={() => setScreen("signup")}
+              showPassword={showPassword}
+              onShowPassword={() => setShowPassword(!showPassword)}
             />
           )}
           {screen === "signup" && (
             <SignupForm
               onSubmit={handleSubmit}
-              onBack={() => setScreen("choose")}
+              onBack={
+                !location.state?.screen ? () => setScreen("choose") : false
+              }
               onSignIn={() => setScreen("login")}
+              showPassword={showPassword}
+              onShowPassword={() => setShowPassword(!showPassword)}
             />
           )}
           {screen === "guest" && (

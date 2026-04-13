@@ -9,12 +9,12 @@ const Footer = () => {
           <div className="text-sm text-surface-500">
             © 2025 Ikinamba. All rights reserved.
           </div>
-          <button
+          {/* <button
             onClick={() => navigate("/admin/overview")}
             className="text-xs text-surface-600 hover:text-surface-400 transition-colors"
           >
             Admin →
-          </button>
+          </button> */}
         </div>
       </footer>
   )

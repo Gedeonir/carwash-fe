@@ -8,21 +8,17 @@ export function Button({
   disabled,
   type = "button",
 }) {
-  const base =
-    "inline-flex items-center justify-center font-sans font-medium rounded-xl transition-all duration-250 focus:outline-none focus:ring-2 focus:ring-primary-500/50 disabled:opacity-40 disabled:cursor-not-allowed";
+  const base = `inline-flex items-center justify-center font-sans font-medium rounded-xl transition-all duration-250 focus:outline-none focus:ring-2 focus:ring-primary-500/50 ${disabled ? "opacity-80 cursor-not-allowed" : ""}`;
   const variants = {
-    primary:
-      "bg-primary-500 text-surface-900 hover:bg-primary-600 hover:-translate-y-0.5 hover:shadow-glow active:scale-[0.98]",
+    primary: `bg-primary-500 text-surface-900 ${!disabled && "hover:bg-primary-600 hover:-translate-y-0.5 hover:shadow-glow"} active:scale-[0.98]`,
     ghost:
       "border border-surface-900 text-surface-900 hover:border-primary-500 hover:text-primary-500 hover:-translate-y-0.5",
     outline:
       "border border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-surface-900 hover:-translate-y-0.5",
-    danger:
-      "bg-error text-white hover:opacity-90 active:scale-[0.98]",
+    danger: "bg-error text-white hover:opacity-90 active:scale-[0.98]",
     white:
       "bg-white text-surface-900 hover:bg-accent-200 hover:-translate-y-0.5 active:scale-[0.98]",
-    dark:
-      "bg-surface-700 text-white border border-white/10 hover:bg-surface-600 hover:-translate-y-0.5",
+    dark: "bg-surface-700 text-white border border-white/10 hover:bg-surface-600 hover:-translate-y-0.5",
   };
   const sizes = {
     sm: "text-sm px-4 py-2",
@@ -47,10 +43,12 @@ export function Input({
   type = "text",
   placeholder,
   value,
+  name,
   onChange,
   icon,
   error,
   className = "",
+  eye,
 }) {
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
@@ -67,13 +65,21 @@ export function Input({
           type={type}
           placeholder={placeholder}
           value={value}
+          name={name}
           onChange={onChange}
+          onBlur={onChange}
           className={`w-full bg-surface-100 border ${
             error ? "border-error" : "border-white/10"
           } rounded-xl px-4 py-3 text-surface-900 placeholder:text-surface-500
           focus:outline-none focus:ring-2 focus:ring-primary-500/20
-          transition-all ${icon ? "pl-11" : ""}`}
+          transition-all ${icon ? "px-11" : ""}`}
         />
+
+        {eye && (
+          <span className="absolute right-3.5 top-4 -translate-y-1/2 text-surface-400 cursor-pointer hover:text-surface-500 transition-all">
+            {eye}
+          </span>
+        )}
       </div>
       {error && <span className="text-xs text-error">{error}</span>}
     </div>
@@ -97,11 +103,11 @@ export function Card({ children, className = "", glow = false }) {
 export function Badge({ children, variant = "primary" }) {
   const variants = {
     primary: "bg-surface-900 text-white border-primary-500/25",
-    accent:  "bg-white/10 text-surface-900 border-surface-900",
+    accent: "bg-white/10 text-surface-900 border-surface-900",
     success: "bg-success bg-opacity-20 text-success border-success",
     warning: "bg-warning bg-opacity-20 text-warning border-warning",
-    error:   "bg-error/15 text-error border-error/25",
-    info:    "bg-info bg-opacity-20 text-info border-info/25",
+    error: "bg-error/15 text-error border-error/25",
+    info: "bg-info bg-opacity-20 text-info border-info/25",
   };
   return (
     <span
@@ -123,15 +129,22 @@ export function TopBar({ title, onBack, rightAction }) {
             className="w-9 h-9 flex items-center justify-center rounded-full bg-surface-800 border border-white/8 hover:bg-surface-700 hover:border-primary-500/40 transition-all"
           >
             <svg
-              width="16" height="16" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
               className="text-white"
             >
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
         )}
-        <h2 className="font-display text-lg text-surface-900 flex-1">{title}</h2>
+        <h2 className="font-display text-lg text-surface-900 flex-1">
+          {title}
+        </h2>
         {rightAction}
       </div>
     </div>
@@ -151,12 +164,20 @@ export function ProgressSteps({ steps, current }) {
                 i < current
                   ? "bg-primary-500 border-primary-500 text-surface-900"
                   : i === current
-                  ? "bg-surface-800 border-primary-500 text-primary-600"
-                  : "bg-surface-800 border-white/10 text-surface-600"
+                    ? "bg-surface-800 border-primary-500 text-primary-600"
+                    : "bg-surface-800 border-white/10 text-surface-600"
               }`}
             >
               {i < current ? (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                >
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               ) : (
@@ -188,23 +209,28 @@ export function ProgressSteps({ steps, current }) {
 export function StatCard({ label, value, icon, trend, color = "primary" }) {
   const colors = {
     primary: "bg-primary-500/15 text-primary-600",
-    accent:  "bg-white/10 text-white",
+    accent: "bg-white/10 text-white",
     success: "bg-success/10 text-success",
-    info:    "bg-info/10 text-info",
+    info: "bg-info/10 text-info",
   };
   return (
     <Card className="p-5">
       <div className="flex items-start justify-between mb-3">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colors[color]}`}>
+        <div
+          className={`w-10 h-10 rounded-xl flex items-center justify-center ${colors[color]}`}
+        >
           {icon}
         </div>
         {trend !== undefined && (
           <Badge variant={trend > 0 ? "success" : "error"}>
-            {trend > 0 ? "+" : ""}{trend}%
+            {trend > 0 ? "+" : ""}
+            {trend}%
           </Badge>
         )}
       </div>
-      <div className="text-2xl font-display text-surface-900 mb-0.5">{value}</div>
+      <div className="text-2xl font-display text-surface-900 mb-0.5">
+        {value}
+      </div>
       <div className="text-sm text-surface-400">{label}</div>
     </Card>
   );
@@ -213,4 +239,28 @@ export function StatCard({ label, value, icon, trend, color = "primary" }) {
 // ── Divider ───────────────────────────────────────────────
 export function Divider({ className = "" }) {
   return <div className={`h-px bg-white/8 ${className}`} />;
+}
+
+export function ResponseCard({ title, message, type = "success", onRetry }) {
+  const colors = {
+    success: "bg-success bg-opacity-10 text-success border-success",
+    error: "bg-error bg-opacity-10 text-error border-error",
+    info: "bg-info bg-opacity-10 text-info border-info",
+  };
+  return (
+    <div
+      className={`my-5 flex justify-between items-center rounded-lg border border-red-200 px-4 py-3 ${colors[type]}`}
+    >
+      <div>
+        <h3 className="text-sm font-medium">{title}</h3>
+        <p className="text-xs">{message}</p>
+      </div>
+
+      {onRetry && (
+        <Button size="sm" variant="danger" onClick={onRetry}>
+          Try Again
+        </Button>
+      )}
+    </div>
+  );
 }

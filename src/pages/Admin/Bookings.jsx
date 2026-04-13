@@ -10,7 +10,7 @@ import { useState } from "react";
 import { Badge } from "../../components/UI";
 import { useNavigate } from "react-router-dom";
 
-export const Bookings = () => {
+const Bookings = () => {
   const navigate = useNavigate();
   const [filterStatus, setFilterStatus] = useState("all");
 
@@ -148,3 +148,5 @@ export const Bookings = () => {
     </div>
   );
 };
+
+export default Bookings;

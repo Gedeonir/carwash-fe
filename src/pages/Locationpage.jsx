@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Button, Input, Card, TopBar, ProgressSteps } from "../components/UI";
+import { Button, Input, Card, TopBar, ProgressSteps, ResponseCard } from "../components/UI";
 import { MapPin } from "lucide-react";
+import { useAuth } from "../context/UseAuth";
 
 const SAVED = [
   {
@@ -59,6 +60,10 @@ export default function LocationPage({ navigate, bookingData }) {
   const [notes, setNotes] = useState("");
   const [showSuggest, setShowSuggest] = useState(false);
   const [coords, setCoords] = useState(null);
+  const [loadingLocation, setLoadingLocation] = useState(false);
+
+  const { user } = useAuth();
+  console.log(user);
 
   const finalLocation =
     selected === "custom"
@@ -66,8 +71,9 @@ export default function LocationPage({ navigate, bookingData }) {
       : SAVED.find((s) => s.id === selected);
 
   const useCurrentLocation = () => {
+    setLoadingLocation(true);
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
         const { latitude, longitude } = pos.coords;
 
         setCoords({
@@ -75,18 +81,40 @@ export default function LocationPage({ navigate, bookingData }) {
           lng: longitude,
         });
 
-        setCustom(`Lat: ${latitude.toFixed(5)}, Lng: ${longitude.toFixed(5)}`);
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+        );
+
+        const data = await res.json();
+
+        console.log("Reverse geocoding result:", data);
+
+        setCustom({
+          Lat: `${data.lat}`,
+          Lng: `${data.lon}`,
+          display_name: data.display_name,
+        });
+
         setSelected("custom");
+        setLoadingLocation(false);
       },
       (err) => {
         console.error("Location error:", err);
         alert("Please enable location access");
+        setLoadingLocation(false);
       },
     );
   };
 
   function getDistance(lat1, lon1, lat2, lon2) {
     const R = 6371;
+
+    console.log("Calculating distance between:", {
+      lat1,
+      lon1,
+      lat2: typeof lat2,
+      lon2,
+    });
 
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
@@ -100,6 +128,38 @@ export default function LocationPage({ navigate, bookingData }) {
     return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
   }
 
+  const { getWashers } = useAuth();
+
+  const [washersResponse, setWashersResponse] = useState({
+    loading: false,
+    error: null,
+    success: null,
+    washers: [],
+  });
+
+  const fetchWashers = async () => {
+    setWashersResponse((p) => ({ ...p, loading: true }));
+    const res = await getWashers();
+
+    if (res?.error) {
+      setWashersResponse((p) => ({
+        ...p,
+        loading: false,
+        error: res?.error || "Failed to fetch washers",
+      }));
+    }
+
+    setWashersResponse({
+      loading: false,
+      success: true,
+      washers: res,
+    });
+  };
+
+  useState(() => {
+    fetchWashers();
+  }, []);
+
   const userLocation = {
     lat: -1.95,
     lng: 30.06,
@@ -107,15 +167,23 @@ export default function LocationPage({ navigate, bookingData }) {
 
   const [filter, setFilter] = useState("all");
 
-  const washers = WASHERS.map((w) => ({
-    ...w,
-    distance: getDistance(userLocation.lat, userLocation.lng, w.lat, w.lng),
-  }))
+  const washers = washersResponse.washers
+    ?.map((w) => ({
+      ...w,
+      distance: getDistance(
+        userLocation.lat,
+        userLocation.lng,
+        w.savedLocations[0]?.coordinates?.lat,
+        w.savedLocations[0]?.coordinates?.lng,
+      ),
+    }))
     .filter((w) => {
       if (filter === "all") return true;
-      return w.status === filter;
+      return w.isAvailable === filter;
     })
     .sort((a, b) => a.distance - b.distance);
+
+  console.log("res", washers);
 
   return (
     <div className="min-h-screen bg-surface-50 pb-32">
@@ -134,58 +202,57 @@ export default function LocationPage({ navigate, bookingData }) {
         </p>
 
         {/* 🏠 SAVED LOCATIONS */}
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-surface-500 mb-3">
-            Saved locations
-          </h3>
+        {user && (
+          <div className="mb-6">
+            <h3 className="text-sm font-medium text-surface-500 mb-3">
+              Saved locations
+            </h3>
 
-          <div className="flex flex-col gap-3">
-            {SAVED.map((loc) => (
-              <button
-                key={loc.id}
-                onClick={() => {
-                  setSelected(loc.id);
-                  setCustom("");
-                  setCoords({ lat: loc.lat, lng: loc.lng });
-                }}
-                className={`flex items-center gap-4 p-4 rounded-xl border text-left transition-all ${
-                  selected === loc.id
-                    ? "border-primary-500 bg-primary-500/10"
-                    : "border-white/10 bg-surface-800/50"
-                }`}
-              >
-                <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-700 text-lg">
-                  {loc.icon}
-                </div>
+            <div className="flex flex-col gap-3">
+              {user.savedLocations.map((loc) => (
+                <button
+                  key={loc.id}
+                  onClick={() => {
+                    setSelected(loc.id);
+                    setCustom("");
+                    setCoords({ lat: loc.lat, lng: loc.lng });
+                  }}
+                  className={`flex items-center gap-4 p-4 rounded-xl border text-left transition-all ${
+                    selected === loc.id
+                      ? "border-primary-500 bg-primary-500/10"
+                      : "border-white/10 bg-surface-800/50"
+                  }`}
+                >
+                  <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-700 text-lg">
+                    {loc.icon}
+                  </div>
 
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-white">
-                    {loc.label}
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-white">
+                      {loc.label}
+                    </div>
+                    <div className="text-xs text-surface-500 truncate">
+                      {loc.address}
+                    </div>
                   </div>
-                  <div className="text-xs text-surface-500 truncate">
-                    {loc.address}
-                  </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* ✍️ CUSTOM ADDRESS */}
         <div className="mb-6">
           <h3 className="text-sm font-medium text-surface-500 mb-3">
-            Enter custom address
+            My current address
           </h3>
 
           <div className="relative">
             <Input
               placeholder="e.g. KG 123 St, Kigali"
-              value={custom}
-              onChange={(e) => {
-                setCustom(e.target.value);
-                setSelected("custom");
-                setShowSuggest(e.target.value.length > 0);
-              }}
+              value={custom?.display_name || ""}
+              disabled={true}
+              onChange={() => {}}
             />
             <div className="mt-2 py-2">
               <button
@@ -194,7 +261,13 @@ export default function LocationPage({ navigate, bookingData }) {
                 variant="dark"
                 size="sm"
               >
-                <MapPin size={15} /> Use my current location
+                {loadingLocation ? (
+                  "Locating..."
+                ) : (
+                  <>
+                    <MapPin size={15} /> Use my current location
+                  </>
+                )}
               </button>
             </div>
 
@@ -228,9 +301,8 @@ export default function LocationPage({ navigate, bookingData }) {
           <div className="flex gap-2 flex-wrap mb-4">
             {[
               { key: "all", label: "All" },
-              { key: "available", label: "Available" },
-              { key: "busy", label: "Busy" },
-              { key: "offline", label: "Offline" },
+              { key: true, label: "Available" },
+              { key: false, label: "Busy" },
             ].map((f) => (
               <button
                 key={f.key}
@@ -238,7 +310,7 @@ export default function LocationPage({ navigate, bookingData }) {
                 className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
                   filter === f.key
                     ? "bg-primary-500 border-primary-500 text-surface-900"
-                    : "border-white/10 text-surface-400 hover:text-white"
+                    : "border-white/10 text-surface-400 hover:text-primary-500 hover:border-white/25"
                 }`}
               >
                 {f.label}
@@ -248,34 +320,55 @@ export default function LocationPage({ navigate, bookingData }) {
 
           {/* WASHERS LIST */}
           <div className="space-y-3 mb-4">
-          <label className="text-sm text-surface-500">
-            Please select washer.
-          </label>
-            {washers.map((w) => (
-              <div
-                key={w.id}
-                className="flex items-center justify-between p-4 rounded-xl border border-white/10 bg-surface-800/50"
-              >
-                <div>
-                  <div className="text-surface-900 font-medium">{w.name}</div>
-                  <div className="text-xs text-surface-500">
-                    {w.distance.toFixed(1)} km away
+            <label className="text-sm text-surface-500">
+              Please select washer.
+            </label>
+            {washers.length === 0 ? (
+              <ResponseCard
+            title="No washers found"
+            message={"No available washers found nearby"}
+            type="info"
+          />
+            ) : (
+              washers.map((w) => (
+                <div
+                  key={w.id}
+                  className="flex items-center justify-between p-4 rounded-xl border border-white/10 bg-surface-800/50"
+                >
+                  <div className="flex gap-3 items-center">
+                    {w?.avatar ? (
+                      <img
+                        src={w.avatar}
+                        alt="profile"
+                        className="w-20 h-20 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-primary-500 flex items-center justify-center font-display text-sm text-primary-50">
+                        {w?.initials}
+                      </div>
+                    )}
+                    <div>
+                      <div className="text-surface-500 font-medium">
+                        {w.name}{" "}
+                      </div>
+                      <div className="text-xs text-surface-500">
+                        {w.distance.toFixed(1)} km away
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`text-xs px-2 py-1 rounded ${
+                      w.isAvailable
+                        ? "bg-green-500 bg-opacity-10 border border-green-500 text-green-400"
+                        : "bg-red-500 bg-opacity-10 border border-red-500 text-red-400"
+                    }`}
+                  >
+                    {w.isAvailable ? "Available" : "Busy"}
                   </div>
                 </div>
-
-                <div
-                  className={`text-xs px-2 py-1 rounded ${
-                    w.status === "available"
-                      ? "bg-green-500/20 text-green-400"
-                      : w.status === "busy"
-                        ? "bg-yellow-500/20 text-yellow-400"
-                        : "bg-red-500/20 text-red-400"
-                  }`}
-                >
-                  {w.status}
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -299,12 +392,14 @@ export default function LocationPage({ navigate, bookingData }) {
 
             <div className="mt-2 space-y-1 text-sm">
               <div className="flex justify-between">
-                <span>Service</span>
-                <span>{bookingData.service.name}</span>
+                <span className="text-surface-900">Service</span>
+                <span className="text-primary-600">
+                  {bookingData.service.name}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span>Total</span>
-                <span className="text-primary-400">
+                <span className="text-surface-900">Total</span>
+                <span className="text-primary-600">
                   {bookingData.total?.toLocaleString()} RWF
                 </span>
               </div>

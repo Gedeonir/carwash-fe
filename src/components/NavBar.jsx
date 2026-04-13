@@ -2,7 +2,6 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "./UI";
 import { Menu } from "lucide-react";
-import { toast } from "./Toast";
 import logo from "../assets/car_wash_logo.png";
 
 const NavBar = () => {
@@ -45,10 +44,10 @@ const NavBar = () => {
           ))}
         </div>
         <div className="hidden md:flex ml-auto gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/auth")}>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/auth",{state:{screen:"login"}})}>
             Sign In
           </Button>
-          <Button size="sm" onClick={() => navigate("/auth")}>
+          <Button size="sm" onClick={() => navigate("/booking")}>
             Book Now
           </Button>
         </div>
@@ -91,7 +90,7 @@ const NavBar = () => {
               size="sm"
               onClick={() => {
                 setOpen(false);
-                navigate("/auth");
+                navigate("/auth",{state:{screen:"login"}});
               }}
             >
               Sign In
@@ -100,7 +99,7 @@ const NavBar = () => {
               size="sm"
               onClick={() => {
                 setOpen(false);
-                navigate("/auth");
+                navigate("/auth",{state:{screen:"choose"}});
               }}
             >
               Book Now
