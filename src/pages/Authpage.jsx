@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Input, Card } from "../components/UI";
+import { Button, Input, Card, ResponseCard } from "../components/UI";
 import NavBar from "../components/NavBar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
@@ -127,9 +127,9 @@ function ChoosePath({ onLogin, onSignup, onGuest, onBack }) {
       {/* Guest */}
       <button
         onClick={onGuest}
-        className="w-full flex items-center gap-4 p-4 bg-surface-800/50 border border-dashed border-white/15 hover:border-white/30 hover:bg-surface-800 rounded-2xl transition-all group"
+        className="w-full flex items-center gap-4 p-4 bg-surface-200 border border-dashed border-white/15 hover:border-white/30 hover:bg-surface-300 rounded-2xl transition-all group"
       >
-        <div className="w-10 h-10 rounded-xl bg-surface-700 flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-surface-100 flex items-center justify-center flex-shrink-0">
           <svg
             width="18"
             height="18"
@@ -144,7 +144,7 @@ function ChoosePath({ onLogin, onSignup, onGuest, onBack }) {
           </svg>
         </div>
         <div className="text-left flex-1">
-          <div className="font-medium text-surface-300 text-sm group-hover:text-white transition-colors">
+          <div className="font-medium text-surface-600 text-sm group-hover:text-surface-700 transition-colors">
             Continue as Guest
           </div>
           <div className="text-xs text-surface-500">
@@ -179,8 +179,7 @@ export function LoginForm({
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const { login,user } = useAuth();
-
+  const { login, user } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -199,7 +198,7 @@ export function LoginForm({
       return;
     setLoading(true);
     const loginResponse = await login(form.email, form.password);
-    
+
     if (loginResponse?.error) {
       setErrors({
         general: loginResponse.error?.data?.message || "Login failed",
@@ -209,8 +208,9 @@ export function LoginForm({
     }
 
     if (loginResponse?.user?.role === "customer") navigate("/dashboard/");
-    else if (loginResponse?.user?.role === "washer") navigate("/washer/dashboard");
-      else if (loginResponse?.user?.role === "admin") navigate("/admin/overview");
+    else if (loginResponse?.user?.role === "washer")
+      navigate("/washer/dashboard");
+    else if (loginResponse?.user?.role === "admin") navigate("/admin/overview");
   };
 
   return (
@@ -378,7 +378,7 @@ function SignupForm({
     <div className="w-full">
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-sm text-surface-400 hover:text-white mb-6 transition-colors"
+        className="flex items-center gap-2 text-sm text-surface-400 hover:text-surface-500 mb-6 transition-colors"
       >
         <svg
           width="14"
@@ -413,7 +413,7 @@ function SignupForm({
       <div className="flex flex-col gap-4 mb-5">
         <Input
           label="Full name"
-          placeholder="Amira Kagabo"
+          placeholder="Full names"
           value={form.name}
           name="name"
           onChange={handleChange}
@@ -555,14 +555,56 @@ function SignupForm({
 
 // ── SCREEN: Guest form ────────────────────────────────────
 function GuestForm({ onSubmit, onBack }) {
-  const [form, setForm] = useState({ name: "", phone: "" });
-  const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
+  const [form, setForm] = useState({ email: "", name: "", phone: "" });
+
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const { guestLogin } = useAuth();
+  const reg = new RegExp("^((072|078|073))[0-9]{7}$", "i");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    validate(name, value, setErrors);
+  };
+
+  const location = useLocation();
+
+  const handleLogin = async () => {
+    setErrors({});
+    if (
+      !validate("email", form.email, setErrors) ||
+      !validate("name", form.name, setErrors) ||
+      !validate("phone", form.phone, setErrors)
+    )
+      return;
+
+    if (!reg.test(form.phone)) {
+      setErrors({ phone: "Invalid phone number" });
+      return;
+    }
+    setLoading(true);
+    const loginResponse = await guestLogin(form.name, form.phone, form.email);
+
+    if (loginResponse?.error) {
+      console.log(loginResponse?.error);
+      
+      setErrors({
+        general: loginResponse.error?.message || "Guest booking failed",
+      });
+      setLoading(false);
+      return;
+    }
+
+    navigate("/booking");
+  };
 
   return (
     <div className="w-full">
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-sm text-surface-400 hover:text-surface-900 mb-6 transition-colors"
+        className="flex items-center gap-2 text-sm text-surface-400 hover:text-surface-500 mb-6 transition-colors"
       >
         <svg
           width="14"
@@ -594,8 +636,8 @@ function GuestForm({ onSubmit, onBack }) {
           <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
         <p className="text-xs text-surface-500 leading-relaxed">
-          No account needed — just your name and phone. After your wash, we'll
-          ask if you'd like to save your details for next time.
+          No account needed — just your name,email and phone. After your wash,
+          we'll ask if you'd like to save your details for next time.
         </p>
       </div>
 
@@ -606,12 +648,16 @@ function GuestForm({ onSubmit, onBack }) {
         We just need the basics to book your wash
       </p>
 
+      {errors.general && <ResponseCard type="error" message={errors.general} />}
+
       <div className="flex flex-col gap-4 mb-6">
         <Input
           label="Your name"
           placeholder="Amira Kagabo"
           value={form.name}
-          onChange={set("name")}
+          name="name"
+          onChange={handleChange}
+          error={errors.name}
           icon={
             <svg
               width="15"
@@ -628,11 +674,35 @@ function GuestForm({ onSubmit, onBack }) {
           }
         />
         <Input
+          label="Your Email"
+          placeholder="eg:you@example.com"
+          value={form.email}
+          name="email"
+          onChange={handleChange}
+          error={errors.email}
+          icon={
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <rect width="20" height="16" x="2" y="4" rx="2" />
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+            </svg>
+          }
+        />
+        <Input
           label="Phone number"
           type="tel"
           placeholder="+250 788 000 000"
           value={form.phone}
-          onChange={set("phone")}
+          name="phone"
+          onChange={handleChange}
+          error={errors.phone}
           icon={
             <svg
               width="15"
@@ -652,9 +722,18 @@ function GuestForm({ onSubmit, onBack }) {
       <Button
         className="w-full mb-4"
         size="lg"
-        onClick={() => onSubmit({ ...form, isGuest: true })}
+        disabled={
+          !!errors.email ||
+          !!errors.phone ||
+          !!errors.name ||
+          !form.email ||
+          !form.phone ||
+          !form.name ||
+          loading
+        }
+        onClick={handleLogin}
       >
-        Continue to Booking →
+        {loading ? "Processing" : "Continue to Booking →"}
       </Button>
 
       <p className="text-xs text-surface-500 text-center">
@@ -678,16 +757,17 @@ export default function AuthPage({ navigate }) {
   ); // choose | login | signup | guest
   const [showPassword, setShowPassword] = useState(false);
   const { user } = useAuth();
-  const token =localStorage.getItem("token");
-  
+  const token = localStorage.getItem("token");
 
-
-  useEffect(()=>{
-    if(user && token) {
-      if(user.role === "customer") navigate("/dashboard/");
-      else navigate("/admin/overview");
+  useEffect(() => {
+    if (user && token) {
+      if (user.role === "customer") {
+        if (!user.isGuest) {
+          navigate("/dashboard/");
+        } else navigate("/auth");
+      } else navigate("/admin/overview");
     }
-  },[])
+  }, []);
 
   const handleSubmit = (data) => {
     if (data.isGuest) {
@@ -755,9 +835,7 @@ export default function AuthPage({ navigate }) {
           )}
           {screen === "login" && (
             <LoginForm
-              onBack={
-                !location.state?.screen ? () => setScreen("choose") : false
-              }
+              onBack={() => setScreen("choose")}
               onForgot={() => {}}
               onSignUp={() => setScreen("signup")}
               showPassword={showPassword}
@@ -767,9 +845,7 @@ export default function AuthPage({ navigate }) {
           {screen === "signup" && (
             <SignupForm
               onSubmit={handleSubmit}
-              onBack={
-                !location.state?.screen ? () => setScreen("choose") : false
-              }
+              onBack={() => setScreen("choose")}
               onSignIn={() => setScreen("login")}
               showPassword={showPassword}
               onShowPassword={() => setShowPassword(!showPassword)}

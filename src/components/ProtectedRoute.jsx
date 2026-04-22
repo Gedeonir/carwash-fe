@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/UseAuth";
 
-function ProtectedRoute({ children, allowedRoles = [], path }) {
+function ProtectedRoute({ children, allowedRoles = [], path,screen }) {
   const { user, loading } = useAuth();
   const location = useLocation();
 
@@ -16,7 +16,7 @@ function ProtectedRoute({ children, allowedRoles = [], path }) {
       <Navigate
         to={path}
         replace
-        state={{ from: location, screen: "login" }}
+        state={{ from: location, screen: screen }}
       />
     );
   }
@@ -27,7 +27,7 @@ function ProtectedRoute({ children, allowedRoles = [], path }) {
 
   if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
     const fallback =
-      user.role === "admin" ? "/admin/overview" : "/dashboard";
+      user.role === "admin" ? "/admin/overview" : user.isGuest ? "/auth" : "/dashboard";
 
     return <Navigate to={fallback} replace />;
   }

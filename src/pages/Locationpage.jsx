@@ -1,7 +1,15 @@
-import { useState } from "react";
-import { Button, Input, Card, TopBar, ProgressSteps, ResponseCard } from "../components/UI";
+import { useEffect, useState } from "react";
+import {
+  Button,
+  Input,
+  Card,
+  TopBar,
+  ProgressSteps,
+  ResponseCard,
+} from "../components/UI";
 import { MapPin } from "lucide-react";
 import { useAuth } from "../context/UseAuth";
+import { useBookingStore } from "../utils/bookingStore";
 
 const SAVED = [
   {
@@ -63,7 +71,8 @@ export default function LocationPage({ navigate, bookingData }) {
   const [loadingLocation, setLoadingLocation] = useState(false);
 
   const { user } = useAuth();
-  console.log(user);
+  const booking = useBookingStore((state) => state.booking);
+  const updateBooking = useBookingStore((state) => state.updateBooking);
 
   const finalLocation =
     selected === "custom"
@@ -87,7 +96,6 @@ export default function LocationPage({ navigate, bookingData }) {
 
         const data = await res.json();
 
-        console.log("Reverse geocoding result:", data);
 
         setCustom({
           Lat: `${data.lat}`,
@@ -108,13 +116,6 @@ export default function LocationPage({ navigate, bookingData }) {
 
   function getDistance(lat1, lon1, lat2, lon2) {
     const R = 6371;
-
-    console.log("Calculating distance between:", {
-      lat1,
-      lon1,
-      lat2: typeof lat2,
-      lon2,
-    });
 
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
@@ -137,26 +138,35 @@ export default function LocationPage({ navigate, bookingData }) {
     washers: [],
   });
 
-  const fetchWashers = async () => {
-    setWashersResponse((p) => ({ ...p, loading: true }));
-    const res = await getWashers();
+  async function fetchWashers() {
+    try {
+      setWashersResponse((prev) => ({
+        ...prev,
+        loading: true,
+        error: null,
+      }));
 
-    if (res?.error) {
-      setWashersResponse((p) => ({
-        ...p,
+      const result = await getWashers();
+
+      if (result?.error) throw new Error("API error");
+
+      setWashersResponse((prev) => ({
+        ...prev,
         loading: false,
-        error: res?.error || "Failed to fetch washers",
+        success: true,
+        washers: result || [],
+        error: null,
+      }));
+    } catch (err) {
+      setWashersResponse((prev) => ({
+        ...prev,
+        loading: false,
+        error: "Failed to load washers. Please try again.",
       }));
     }
+  }
 
-    setWashersResponse({
-      loading: false,
-      success: true,
-      washers: res,
-    });
-  };
-
-  useState(() => {
+  useEffect(() => {
     fetchWashers();
   }, []);
 
@@ -183,14 +193,9 @@ export default function LocationPage({ navigate, bookingData }) {
     })
     .sort((a, b) => a.distance - b.distance);
 
-  console.log("res", washers);
-
   return (
     <div className="min-h-screen bg-surface-50 pb-32">
-      <TopBar
-        title="Where should we come?"
-        onBack={() => navigate("booking")}
-      />
+      <TopBar title="Where should we come?" onBack={() => navigate("schedule")}/>
       <ProgressSteps steps={["Service", "Schedule", "Location"]} current={2} />
 
       <div className="max-w-2xl mx-auto px-4">
@@ -202,14 +207,14 @@ export default function LocationPage({ navigate, bookingData }) {
         </p>
 
         {/* 🏠 SAVED LOCATIONS */}
-        {user && (
+        {user && !user?.isGuest && (
           <div className="mb-6">
             <h3 className="text-sm font-medium text-surface-500 mb-3">
               Saved locations
             </h3>
 
             <div className="flex flex-col gap-3">
-              {user.savedLocations.map((loc) => (
+              {user?.savedLocations?.map((loc) => (
                 <button
                   key={loc.id}
                   onClick={() => {
@@ -319,7 +324,7 @@ export default function LocationPage({ navigate, bookingData }) {
           </div>
 
           {/* WASHERS LIST */}
-          <div className="space-y-3 mb-4">
+          {/* <div className="space-y-3 mb-4">
             <label className="text-sm text-surface-500">
               Please select washer.
             </label>
@@ -369,7 +374,7 @@ export default function LocationPage({ navigate, bookingData }) {
                 </div>
               ))
             )}
-          </div>
+          </div> */}
         </div>
 
         <div className="mb-6">
@@ -386,21 +391,19 @@ export default function LocationPage({ navigate, bookingData }) {
         </div>
 
         {/* 📦 SUMMARY */}
-        {bookingData.service && (
+        {booking.service && (
           <Card className="p-4">
             <div className="text-sm text-surface-400">Your booking</div>
 
             <div className="mt-2 space-y-1 text-sm">
               <div className="flex justify-between">
                 <span className="text-surface-900">Service</span>
-                <span className="text-primary-600">
-                  {bookingData.service.name}
-                </span>
+                <span className="text-primary-600">{booking.service.name}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-surface-900">Total</span>
                 <span className="text-primary-600">
-                  {bookingData.total?.toLocaleString()} RWF
+                  {booking.total?.toLocaleString()} RWF
                 </span>
               </div>
             </div>
@@ -414,12 +417,10 @@ export default function LocationPage({ navigate, bookingData }) {
           <Button
             className="w-full h-12"
             disabled={!finalLocation}
-            onClick={() =>
-              navigate("confirm", {
-                location: finalLocation,
-                notes,
-              })
-            }
+            onClick={() => {
+              (updateBooking({ location: finalLocation, notes }),
+                navigate("confirm"));
+            }}
           >
             Review & Confirm →
           </Button>

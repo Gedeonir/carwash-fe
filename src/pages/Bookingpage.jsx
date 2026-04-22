@@ -1,47 +1,15 @@
 import { useEffect, useState } from "react";
-import { Button, Card, Badge, TopBar, ProgressSteps, ResponseCard } from "../components/UI";
+import {
+  Button,
+  Card,
+  Badge,
+  TopBar,
+  ProgressSteps,
+  ResponseCard,
+} from "../components/UI";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../context/UseAuth";
-
-const TIMES = [
-  "08:00",
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-];
-
-function getDates() {
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  return Array.from({ length: 14 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    return {
-      label: i === 0 ? "Today" : i === 1 ? "Tomorrow" : days[d.getDay()],
-      date: `${d.getDate()} ${months[d.getMonth()]}`,
-      d,
-    };
-  });
-}
+import { useBookingStore } from "../utils/bookingStore";
 
 function CardSkeleton() {
   return (
@@ -59,14 +27,17 @@ function CardSkeleton() {
 }
 
 export default function BookingPage({ navigate, bookingData, onBook }) {
+  const booking = useBookingStore((state) => state.booking);
+  const updateBooking = useBookingStore((state) => state.updateBooking);
+  const resetBooking = useBookingStore((state) => state.resetBooking);
+
   const [step, setStep] = useState(0);
-  const [addons, setAddons] = useState([]);
-  const [date, setDate] = useState(null);
-  const [time, setTime] = useState(null);
+
 
   const [ADDONS, setADDONS] = useState([]);
 
   const location = useLocation();
+
   const [service, setService] = useState(location.state?.selected || null);
 
   const { getServices } = useAuth();
@@ -76,80 +47,73 @@ export default function BookingPage({ navigate, bookingData, onBook }) {
   const [error, setError] = useState(null);
 
 
-  const dates = getDates();
-  const selectedService = services.find((s) => s.id === service);
-  const addonTotal = addons.reduce(
-    (sum, id) => sum + (ADDONS.find((a) => a.id === id)?.price || 0),
-    0,
+  const selectedService = booking.service
+  const selectedServiceId = selectedService?.id;
+
+const toggleAddon = (id) => {
+  const updated = booking.addons.includes(id)
+    ? booking.addons.filter((x) => x !== id)
+    : [...booking.addons, id];
+
+  const addonTotal = updated.reduce(
+    (sum, aid) =>
+      sum + (ADDONS.find((a) => a.id === aid)?.price || 0),
+    0
   );
-  const total = (selectedService?.price || 0) + addonTotal;
 
-  const toggleAddon = (id) =>
-    setAddons((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+  updateBooking({
+    addons: updated,
+    total: (booking.service?.price || 0) + addonTotal,
+  });
+};
 
-  const canNext = step === 0 ? !!service : step === 1 ? !!(date && time) : true;
+  const canNext = step === 0 ? !!booking.service : true;
 
   const handleNext = () => {
-    if (step < 1) {
-      setStep((s) => s + 1);
-      return;
-    }
-    onBook({
-      service: selectedService,
-      addons,
-      date,
-      time,
-      total,
-    });
 
-    navigate("location", {
-      service: selectedService,
-      addons,
-      date,
-      time,
-      total,
-    });
+    navigate("schedule");
   };
 
   async function fetchServices() {
-  try {
-    setLoading(true);
-    setError(null);
+    try {
+      setLoading(true);
+      setError(null);
 
-    const result = await getServices();
+      const result = await getServices();
 
-    if (result?.error) throw new Error("API error");
+      if (result?.error) throw new Error("API error");
 
-    setServices(result || []);
-  } catch (err) {
-    setError("Failed to load services. Please try again.");
-  } finally {
-    setLoading(false);
+      setServices(result || []);
+    } catch (err) {
+      setError("Failed to load services. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
   // Fetch services on mount
   useEffect(() => {
     fetchServices();
-
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     async function handleAddOns() {
-      if (!service || services.length === 0) return;
+      if (!booking.service || services.length === 0) return;
 
-      const selected = services.find((s) => s.id === service);
+      const selected = services.find((s) => s.id === selectedServiceId);
 
       if (selected) {
         setADDONS(selected.addOns || []);
       }
     }
     handleAddOns();
-  }, [service, services]);
+  }, [services, booking.service]);
+
+  console.log("Booking data", booking);
 
   return (
     <div className="min-h-screen bg-surface-100 pb-32">
-      <TopBar title="Book Your Wash" onBack={() => navigate(-1)} />
+      {/* <TopBar title="Book Your Wash" onBack={() => navigate(-1)} /> */}
       <ProgressSteps
         steps={["Service", "Schedule", "Location"]}
         current={step}
@@ -179,65 +143,74 @@ export default function BookingPage({ navigate, bookingData, onBook }) {
               {loading
                 ? [1, 2, 3].map((i) => <CardSkeleton key={i} />)
                 : services.map((s) => (
-                  <button
-                    key={s.id}
-                    onClick={() => {
-                      (setService(s.id), setADDONS(s.addOns));
-                    }}
-                    className={`relative text-left p-5 rounded-2xl border transition-all ${service === s.id ? "border-primary-500 bg-primary-500/8 shadow-[0_0_24px_rgba(0,201,177,0.12)]" : "border-white/8 bg-surface-800/50 hover:border-white/20"}`}
-                  >
-                    <div className="flex items-start gap-4">
-                      <span className="text-3xl">{s.icon}</span>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-display text-lg text-surface-900">
-                            {s.name}
-                          </h3>
-                          <span className="text-xs text-surface-500">
-                            · {s.time}
-                          </span>
-                        </div>
-                        <p className="text-sm text-surface-400 mb-3">{s.desc}</p>
-                        <div className="flex flex-wrap gap-2">
-                          {s.includes.slice(0, 3).map((inc) => (
-                            <span
-                              key={inc}
-                              className="text-xs bg-white/5 border border-white/8 rounded-full px-2.5 py-0.5 text-surface-300"
-                            >
-                              {inc}
-                            </span>
-                          ))}
-                          {s.includes.length > 3 && (
+                    <button
+                      key={s.id}
+                      onClick={() => {
+                        setService(s.id);
+                        setADDONS(s.addOns || []);
+
+                        updateBooking({
+                          service: s, // store FULL object
+                          addons: [],
+                          total: s.price,
+                        });
+                      }}
+                      className={`relative text-left p-5 rounded-2xl border transition-all ${selectedServiceId === s.id ? "border-primary-500 bg-primary-100 shadow-[0_0_24px_rgba(0,201,177,0.12)]" : "bg-surface-50 hover:bg-primary-50"}`}
+                    >
+                      <div className="flex items-start gap-4">
+                        <span className="text-3xl">{s.icon}</span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-display text-lg text-surface-900">
+                              {s.name}
+                            </h3>
                             <span className="text-xs text-surface-500">
-                              +{s.includes.length - 3} more
+                              · {s.time}
                             </span>
-                          )}
+                          </div>
+                          <p className="text-sm text-surface-400 mb-3">
+                            {s.desc}
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {s.includes.slice(0, 3).map((inc) => (
+                              <span
+                                key={inc}
+                                className="text-xs bg-white/5 border border-white/8 rounded-full px-2.5 py-0.5 text-surface-300"
+                              >
+                                {inc}
+                              </span>
+                            ))}
+                            {s.includes.length > 3 && (
+                              <span className="text-xs text-surface-500">
+                                +{s.includes.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right ml-2">
+                          <div className="font-display text-xl text-primary-600">
+                            {s.price.toLocaleString()}
+                          </div>
+                          <div className="text-xs text-surface-400">RWF</div>
                         </div>
                       </div>
-                      <div className="text-right ml-2">
-                        <div className="font-display text-xl text-primary-600">
-                          {s.price.toLocaleString()}
+                      {service === s.id && (
+                        <div className="absolute top-4 left-4 w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center">
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#0A0F1E"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
                         </div>
-                        <div className="text-xs text-surface-400">RWF</div>
-                      </div>
-                    </div>
-                    {service === s.id && (
-                      <div className="absolute top-4 left-4 w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center">
-                        <svg
-                          width="10"
-                          height="10"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="#0A0F1E"
-                          strokeWidth="3"
-                          strokeLinecap="round"
-                        >
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      </div>
-                    )}
-                  </button>
-                ))}
+                      )}
+                    </button>
+                  ))}
             </div>
 
             {/* Add-ons */}
@@ -253,13 +226,13 @@ export default function BookingPage({ navigate, bookingData, onBook }) {
                   <button
                     key={a.id}
                     onClick={() => toggleAddon(a.id)}
-                    className={`flex items-center justify-between p-4 rounded-xl border transition-all ${addons.includes(a.id) ? "border-accent-400/50 bg-accent-400/8" : "border-white/8 bg-surface-800/40 hover:border-white/20"}`}
+                    className={`flex items-center justify-between p-4 rounded-xl border transition-all ${booking.addons.includes(a.id) ? "border-primary-500 bg-primary-100" : "border-white/8 bg-surface-800/40 hover:border-white/20"}`}
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${addons.includes(a.id) ? "bg-accent-400 border-accent-400" : "border-white/25"}`}
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${booking.addons.includes(a.id) ? "bg-primary-500 border-accent-400" : "border-surface-500"}`}
                       >
-                        {addons.includes(a.id) && (
+                        {booking.addons.includes(a.id) && (
                           <svg
                             width="10"
                             height="10"
@@ -282,97 +255,6 @@ export default function BookingPage({ navigate, bookingData, onBook }) {
                 ))}
               </div>
             </div>
-          </div>
-        )}
-
-        {/* STEP 1 — Choose date & time */}
-        {step === 1 && (
-          <div>
-            <h2 className="font-display text-2xl text-surface-900 mb-2">
-              When works for you?
-            </h2>
-            <p className="text-surface-500 text-sm mb-6">
-              Choose your preferred date and time slot
-            </p>
-
-            {/* Date picker */}
-            <div className="mb-8">
-              <h3 className="text-sm font-medium text-surface-400 mb-3">
-                Select date
-              </h3>
-              <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-                {dates.slice(0, 10).map((d, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setDate(d.date)}
-                    className={`flex flex-col items-center min-w-[64px] py-3 px-2 rounded-xl border transition-all flex-shrink-0 ${date === d.date ? "border-primary-500 bg-primary-500/12 shadow-[0_0_16px_rgba(0,201,177,0.15)]" : "border-white/8 bg-surface-800/50 hover:border-white/20"}`}
-                  >
-                    <span
-                      className={`text-xs mb-1 ${date === d.date ? "text-primary-600" : "text-surface-400"}`}
-                    >
-                      {d.label}
-                    </span>
-                    <span
-                      className={`text-sm font-medium ${date === d.date ? "text-surface-900" : "text-surface-300"}`}
-                    >
-                      {d.date}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Time picker */}
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-surface-400 mb-3">
-                Select time
-              </h3>
-              <div className="grid grid-cols-4 gap-2">
-                {TIMES.map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setTime(t)}
-                    className={`py-3 rounded-xl border text-sm font-medium transition-all ${time === t ? "border-primary-500 bg-primary-500/12 text-primary-500" : "border-white/8 bg-surface-800/50 text-surface-300 hover:border-white/20 hover:text-surface-600"}`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Summary */}
-            {selectedService && (
-              <Card className="p-4 mt-6">
-                <h4 className="text-sm font-medium text-surface-400 mb-3">
-                  Booking summary
-                </h4>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-surface-400">
-                    {selectedService.name}
-                  </span>
-                  <span className="text-surface-900">
-                    {selectedService.price.toLocaleString()} RWF
-                  </span>
-                </div>
-                {addons.map((id) => {
-                  const a = ADDONS.find((x) => x.id === id);
-                  return a ? (
-                    <div key={id} className="flex justify-between text-sm mb-1">
-                      <span className="text-surface-500">{a.name}</span>
-                      <span className="text-surface-900">
-                        +{a.price.toLocaleString()} RWF
-                      </span>
-                    </div>
-                  ) : null;
-                })}
-                <div className="border-t border-white/8 mt-3 pt-3 flex justify-between">
-                  <span className="font-medium text-surface-900">Total</span>
-                  <span className="font-display text-lg text-primary-500">
-                    {total.toLocaleString()} RWF
-                  </span>
-                </div>
-              </Card>
-            )}
           </div>
         )}
       </div>
@@ -404,7 +286,7 @@ export default function BookingPage({ navigate, bookingData, onBook }) {
             disabled={!canNext}
             onClick={handleNext}
           >
-            {step === 1 ? "Set Location →" : "Choose Date & Time →"}
+            Choose Date & Time →
           </Button>
         </div>
       </div>

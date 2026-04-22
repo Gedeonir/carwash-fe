@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button, Card, Badge, TopBar } from "../components/UI";
+import { useBookingStore } from "../utils/bookingStore";
 
 const PAYMENT_METHODS = [
   { id: "momo", name: "MTN Mobile Money", icon: "📱", desc: "Pay with your MTN MoMo" },
@@ -11,6 +12,11 @@ const PAYMENT_METHODS = [
 export default function ConfirmPage({ navigate, bookingData }) {
   const [payment, setPayment] = useState("momo");
   const [confirming, setConfirming] = useState(false);
+   const booking = useBookingStore((state) => state.booking);
+  const updateBooking = useBookingStore((state) => state.updateBooking);
+
+  console.log(booking);
+  
 
   const handleConfirm = () => {
     setConfirming(true);
@@ -18,14 +24,14 @@ export default function ConfirmPage({ navigate, bookingData }) {
   };
 
   const rows = [
-    ["Service", bookingData.service?.name || "Standard Wash"],
-    ["Date", bookingData.date || "Today"],
-    ["Time", bookingData.time || "10:00"],
-    ["Location", bookingData.location || "KG 9 Ave, Kimihurura"],
-    ["Duration", bookingData.service?.time || "60 min"],
+    ["Service", booking.service?.name || "N/A"],
+    ["Date", booking.date || "N/A"],
+    ["Time", booking.time || "N/A"],
+    ["Location", booking.location.address?.display_name || "N/A"],
+    ["Duration", booking.service?.durationMinutes + "min"|| "N/A"],
   ];
 
-  const total = bookingData.total || 10000;
+  const total = booking.total
 
   return (
     <div className="min-h-screen bg-surface-100 pb-32">

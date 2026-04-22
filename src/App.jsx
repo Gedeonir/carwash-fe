@@ -26,6 +26,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { ToastProvider } from "./components/Toast";
+const Schedule=lazy(()=> import("./pages/Schedule"));
 const PageLoader = lazy(() => import("./components/PageLoader"));
 
 export default function App() {
@@ -33,7 +34,11 @@ export default function App() {
 
   const navigate = useNavigate();
 
-  const sharedProps = { navigate, bookingData, onBook: (data) => setBookingData(data)};
+  const sharedProps = {
+    navigate,
+    bookingData,
+    onBook: (data) => setBookingData(data),
+  };
 
   return (
     <div>
@@ -54,12 +59,55 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/booking" element={<BookingPage {...sharedProps} />} />
+            <Route
+              path="/booking"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["customer", "admin"]}
+                  path={"/auth"}
+                  screen={"choose"}
+                >
+                  <BookingPage {...sharedProps} />
+                </ProtectedRoute>
+              }
+            />
+
+             <Route
+              path="/schedule"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["customer", "admin"]}
+                  path={"/auth"}
+                  screen={"choose"}
+                >
+                  <Schedule {...sharedProps} />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/location"
-              element={<LocationPage {...sharedProps} />}
+              element={
+                <ProtectedRoute
+                  allowedRoles={["customer", "admin"]}
+                  path={"/auth"}
+                  screen={"choose"}
+                >
+                  <LocationPage {...sharedProps} />
+                </ProtectedRoute>
+              }
             />
-            <Route path="/confirm" element={<ConfirmPage {...sharedProps} />} />
+            <Route
+              path="/confirm"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["customer", "admin"]}
+                  path={"/auth"}
+                  screen={"choose"}
+                >
+                  <ConfirmPage {...sharedProps} />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/tracking"
               element={<TrackingPage {...sharedProps} />}
@@ -70,7 +118,7 @@ export default function App() {
             <Route
               path="/admin/*"
               element={
-                <ProtectedRoute allowedRoles={["admin"]} path={"/auth"}>
+                <ProtectedRoute allowedRoles={["admin"]} path={"/auth"} screen={"login"}>
                   <DashboardLayout />
                 </ProtectedRoute>
               }
@@ -96,7 +144,7 @@ export default function App() {
             <Route
               path="/profile"
               element={
-                <ProtectedRoute allowedRoles={["customer"]} path={"/auth"}>
+                <ProtectedRoute allowedRoles={["customer"]} path={"/auth"} screen={"login"}>
                   <ProfilePage {...sharedProps} />
                 </ProtectedRoute>
               }

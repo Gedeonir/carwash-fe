@@ -115,13 +115,13 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const guestLogin = useCallback(async (name, phone) => {
+  const guestLogin = useCallback(async (name, phone,email) => {
     loginInFlightRef.current = true;
     didLogoutRef.current     = false;
     localStorage.removeItem("token");
 
     try {
-      const res = await api.post("/auth/guest", { name, phone });
+      const res = await api.post("/auth/guest", { name, phone,email });
       const { token, user: guestUser } = res.data;
 
       localStorage.setItem("token", token);

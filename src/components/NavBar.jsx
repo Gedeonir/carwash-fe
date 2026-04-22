@@ -44,9 +44,16 @@ const NavBar = () => {
           ))}
         </div>
         <div className="hidden md:flex ml-auto gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/auth",{state:{screen:"login"}})}>
-            Sign In
-          </Button>
+          {location.pathname !== "/auth" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/auth", { state: { screen: "login" } })}
+            >
+              Sign In
+            </Button>
+          )}
+
           <Button size="sm" onClick={() => navigate("/booking")}>
             Book Now
           </Button>
@@ -90,7 +97,7 @@ const NavBar = () => {
               size="sm"
               onClick={() => {
                 setOpen(false);
-                navigate("/auth",{state:{screen:"login"}});
+                navigate("/auth", { state: { screen: "login" } });
               }}
             >
               Sign In
@@ -99,7 +106,7 @@ const NavBar = () => {
               size="sm"
               onClick={() => {
                 setOpen(false);
-                navigate("/auth",{state:{screen:"choose"}});
+                navigate("/auth", { state: { screen: "choose" } });
               }}
             >
               Book Now

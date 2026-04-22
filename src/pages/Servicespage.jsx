@@ -3,6 +3,7 @@ import { Button, Card, Badge, ResponseCard } from "../components/UI";
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/UseAuth";
+import { useBookingStore } from "../utils/bookingStore";
 
 // ── Static FAQ (doesn't change often) ─────────────────────
 const FAQ = [
@@ -184,7 +185,7 @@ function ServiceCard({ service, selected, onSelect, onBook }) {
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onBook(service._id);
+            onBook(service);
           }}
           className={`
             w-full py-3 rounded-xl text-sm font-semibold transition-all duration-200
@@ -233,6 +234,8 @@ export default function ServicesPage({ navigate }) {
   const [selectedSvc, setSelectedSvc] = useState(null);
   const [selectedAddons, setSelectedAddons] = useState([]);
   const [faqOpen, setFaqOpen] = useState(null);
+    const updateBooking = useBookingStore((state) => state.updateBooking);
+  
 
   async function fetchServices() {
     try {
@@ -272,10 +275,11 @@ export default function ServicesPage({ navigate }) {
   }, []);
 
   const handleBook = useCallback(
-    (serviceId) => {
+    (service) => {
+      updateBooking({service})
       navigate("/booking", {
         state: {
-          selected: serviceId,
+          selected: service._id,
         },
       });
     },

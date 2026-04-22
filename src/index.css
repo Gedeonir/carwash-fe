@@ -102,3 +102,12 @@
     50%       { opacity: 0.6; box-shadow: 0 0 0 5px rgba(245,197,66,0); }
   }
 }
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE + Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari */
+}

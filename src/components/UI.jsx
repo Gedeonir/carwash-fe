@@ -165,7 +165,7 @@ export function ProgressSteps({ steps, current }) {
                   ? "bg-primary-500 border-primary-500 text-surface-900"
                   : i === current
                     ? "bg-surface-800 border-primary-500 text-primary-600"
-                    : "bg-surface-800 border-white/10 text-surface-600"
+                    : "bg-surface-800 border-white/10 text-surface-100"
               }`}
             >
               {i < current ? (
