@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../context/UseAuth";
+
 import {
   Button,
   Card,
@@ -10,6 +11,8 @@ import {
   ResponseCard,
 } from "../components/UI";
 import { useBookingStore } from "../utils/bookingStore";
+import NavBar from "../components/NavBar";
+import NavBarClient from "../components/NavBarClient";
 
 const TIMES = [
   "08:00",
@@ -71,11 +74,17 @@ const Schedule = ({ navigate }) => {
     navigate("location");
   };
 
+  const {user}=useAuth();
+
   // console.log(booking);
 
   return (
     <div className="min-h-screen bg-surface-100 pb-32">
-      <TopBar title="When works for you?" onBack={() => navigate("booking")}/>
+       {user ? (
+        <NavBarClient />
+      ) : (
+        <TopBar title="Book Your Wash" onBack={() => navigate(booking)} />
+      )}
       <ProgressSteps steps={["Service", "Schedule", "Location"]} current={1} />
       <div className="max-w-2xl mx-auto px-4 bg-surface-50">
         <p className="text-surface-500 text-sm mb-6">

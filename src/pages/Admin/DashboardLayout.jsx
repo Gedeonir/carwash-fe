@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Badge, Card, Button } from "../../components/UI";
-import { Menu } from "lucide-react";
+import { Menu,Bell } from "lucide-react";
 import logo from "../../assets/car_wash_logo.png";
 
 const DashboardLayout = () => {
@@ -17,6 +17,10 @@ const DashboardLayout = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+
+   const userName = "Amira";
+  const firstName = userName.split(" ")[0].split("@")[0];
+  const [notifCount] = useState(2);
 
   return (
     <div className="min-h-screen flex flex-col bg-surface-100">
@@ -58,9 +62,22 @@ const DashboardLayout = () => {
 
           {/* Avatar */}
           <div className="ml-auto flex items-center gap-3">
-            <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-primary-500 flex items-center justify-center text-white text-xs font-medium">
-              AD
-            </div>
+             <button
+              onClick={() => navigate("/notifications")}
+              className="relative w-9 h-9 flex items-center justify-center rounded-full border border-white/8 hover:border-primary-500/40 transition-all"
+            >
+              <Bell className="w-5 h-5 text-surface-400" />
+              {notifCount > 0 && (
+                <span className="absolute top-1.5 right-2 w-2 h-2 bg-primary-500 rounded-full text-[3px] font-bold text-surface-900 flex items-center justify-center"></span>
+              )}
+            </button>
+            {/* Avatar */}
+            <button
+              onClick={() => navigate("/admin/profile")}
+              className="w-9 h-9 rounded-full bg-primary-500 border border-primary-500/30 flex items-center justify-center font-display text-primary-400 text-sm hover:bg-primary-500/30 transition-all"
+            >
+              {firstName[0].toUpperCase()}
+            </button>
 
             {/* Hamburger (mobile only) */}
             <Button

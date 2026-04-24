@@ -138,6 +138,12 @@ export default function App() {
                 path="analytics"
                 element={<Analytics {...sharedProps} />}
               />
+              <Route
+              path="profile"
+              element={
+                  <ProfilePage {...sharedProps} />
+              }
+            />
               <Route path="*" element={<NotFound />} />
             </Route>
 

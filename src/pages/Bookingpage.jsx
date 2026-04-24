@@ -10,6 +10,7 @@ import {
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../context/UseAuth";
 import { useBookingStore } from "../utils/bookingStore";
+import NavBarClient from "../components/NavBarClient";
 
 function CardSkeleton() {
   return (
@@ -33,7 +34,6 @@ export default function BookingPage({ navigate, bookingData, onBook }) {
 
   const [step, setStep] = useState(0);
 
-
   const [ADDONS, setADDONS] = useState([]);
 
   const location = useLocation();
@@ -46,31 +46,28 @@ export default function BookingPage({ navigate, bookingData, onBook }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
-  const selectedService = booking.service
+  const selectedService = booking.service;
   const selectedServiceId = selectedService?.id;
 
-const toggleAddon = (id) => {
-  const updated = booking.addons.includes(id)
-    ? booking.addons.filter((x) => x !== id)
-    : [...booking.addons, id];
+  const toggleAddon = (id) => {
+    const updated = booking.addons.includes(id)
+      ? booking.addons.filter((x) => x !== id)
+      : [...booking.addons, id];
 
-  const addonTotal = updated.reduce(
-    (sum, aid) =>
-      sum + (ADDONS.find((a) => a.id === aid)?.price || 0),
-    0
-  );
+    const addonTotal = updated.reduce(
+      (sum, aid) => sum + (ADDONS.find((a) => a.id === aid)?.price || 0),
+      0,
+    );
 
-  updateBooking({
-    addons: updated,
-    total: (booking.service?.price || 0) + addonTotal,
-  });
-};
+    updateBooking({
+      addons: updated,
+      total: (booking.service?.price || 0) + addonTotal,
+    });
+  };
 
   const canNext = step === 0 ? !!booking.service : true;
 
   const handleNext = () => {
-
     navigate("schedule");
   };
 
@@ -109,11 +106,15 @@ const toggleAddon = (id) => {
     handleAddOns();
   }, [services, booking.service]);
 
-  console.log("Booking data", booking);
+  const user = useAuth();
 
   return (
     <div className="min-h-screen bg-surface-100 pb-32">
-      {/* <TopBar title="Book Your Wash" onBack={() => navigate(-1)} /> */}
+      {user ? (
+        <NavBarClient />
+      ) : (
+        <TopBar title="Book Your Wash" onBack={() => navigate(-1)} />
+      )}
       <ProgressSteps
         steps={["Service", "Schedule", "Location"]}
         current={step}

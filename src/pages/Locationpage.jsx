@@ -10,6 +10,8 @@ import {
 import { MapPin } from "lucide-react";
 import { useAuth } from "../context/UseAuth";
 import { useBookingStore } from "../utils/bookingStore";
+import NavBarClient from "../components/NavBarClient";
+
 
 const SAVED = [
   {
@@ -193,9 +195,15 @@ export default function LocationPage({ navigate, bookingData }) {
     })
     .sort((a, b) => a.distance - b.distance);
 
+    console.log(user);
+
   return (
     <div className="min-h-screen bg-surface-50 pb-32">
-      <TopBar title="Where should we come?" onBack={() => navigate("schedule")}/>
+       {user ? (
+        <NavBarClient />
+      ) : (
+        <TopBar title="Book Your Wash" onBack={() => navigate("schedule")} />
+      )}
       <ProgressSteps steps={["Service", "Schedule", "Location"]} current={2} />
 
       <div className="max-w-2xl mx-auto px-4">
@@ -228,12 +236,12 @@ export default function LocationPage({ navigate, bookingData }) {
                       : "border-white/10 bg-surface-800/50"
                   }`}
                 >
-                  <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-700 text-lg">
-                    {loc.icon}
+                  <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-100 text-surface-900 text-lg">
+                    {loc.label ==="Home"? "🏠" :"🏢"}
                   </div>
 
                   <div className="flex-1">
-                    <div className="text-sm font-medium text-white">
+                    <div className="text-sm font-medium text-surface-500">
                       {loc.label}
                     </div>
                     <div className="text-xs text-surface-500 truncate">

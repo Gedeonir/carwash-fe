@@ -85,7 +85,7 @@ export default function ProfilePage({ navigate }) {
     phone: user?.phone,
   });
 
-  const toast=useToast();
+  const toast = useToast();
 
   const [loading, setLoading] = useState(false);
 
@@ -114,8 +114,6 @@ export default function ProfilePage({ navigate }) {
     logout();
     navigate("/auth", { state: { screen: "login" } });
   };
-
-  
 
   const { updateProfile } = useAuth();
 
@@ -174,10 +172,11 @@ export default function ProfilePage({ navigate }) {
   );
   const totalWashes = HISTORY.filter((h) => h.status === "completed").length;
 
-
   return (
     <div className="min-h-screen bg-surface-100 pb-24">
-      <TopBar title="My Profile" onBack={() => navigate(-1)} />
+      {!location.pathname.includes("admin") && (
+        <TopBar title="My Profile" onBack={() => navigate(-1)} />
+      )}
 
       <div className="max-w-2xl mx-auto px-4 py-6">
         {/* Avatar + name */}

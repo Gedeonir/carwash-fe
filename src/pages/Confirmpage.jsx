@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Button, Card, Badge, TopBar } from "../components/UI";
 import { useBookingStore } from "../utils/bookingStore";
+import { useAuth } from "../context/UseAuth";
+import NavBarClient from "../components/NavBarClient";
 
 const PAYMENT_METHODS = [
   { id: "momo", name: "MTN Mobile Money", icon: "📱", desc: "Pay with your MTN MoMo" },
@@ -32,10 +34,15 @@ export default function ConfirmPage({ navigate, bookingData }) {
   ];
 
   const total = booking.total
+  const {user}=useAuth()
 
   return (
     <div className="min-h-screen bg-surface-100 pb-32">
-      <TopBar title="Confirm Booking" onBack={() => navigate("location")} />
+       {user ? (
+        <NavBarClient />
+      ) : (
+        <TopBar title="Book Your Wash" onBack={() => navigate(location)} />
+      )}
 
       <div className="max-w-2xl mx-auto px-4 py-6">
         {/* Success animation area */}
