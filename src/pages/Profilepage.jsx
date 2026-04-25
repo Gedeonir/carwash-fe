@@ -10,6 +10,7 @@ import {
 import { useAuth } from "../context/UseAuth";
 import { validate } from "../utils/validate";
 import { useToast } from "../components/useToast";
+import NavBar from "../components/NavBar";
 
 const HISTORY = [
   {
@@ -175,10 +176,10 @@ export default function ProfilePage({ navigate }) {
   return (
     <div className="min-h-screen bg-surface-100 pb-24">
       {!location.pathname.includes("admin") && (
-        <TopBar title="My Profile" onBack={() => navigate(-1)} />
+        <NavBar/>
       )}
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className={`max-w-2xl mx-auto px-4 ${!location.pathname.includes("admin")?"pt-24":"py-6"}`}>
         {/* Avatar + name */}
         <div className="flex flex-col items-center text-center mb-8 bg-surface-50 py-4">
           <div className="relative mb-4">

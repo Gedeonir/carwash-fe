@@ -73,7 +73,7 @@ export default function App() {
             />
 
              <Route
-              path="/schedule"
+              path="/booking/schedule"
               element={
                 <ProtectedRoute
                   allowedRoles={["customer", "admin"]}
@@ -85,7 +85,7 @@ export default function App() {
               }
             />
             <Route
-              path="/location"
+              path="/booking/location"
               element={
                 <ProtectedRoute
                   allowedRoles={["customer", "admin"]}
@@ -97,7 +97,7 @@ export default function App() {
               }
             />
             <Route
-              path="/confirm"
+              path="/booking/confirm"
               element={
                 <ProtectedRoute
                   allowedRoles={["customer", "admin"]}
@@ -109,7 +109,7 @@ export default function App() {
               }
             />
             <Route
-              path="/tracking"
+              path="/booking/tracking"
               element={<TrackingPage {...sharedProps} />}
             />
             <Route path="/review" element={<ReviewPage {...sharedProps} />} />

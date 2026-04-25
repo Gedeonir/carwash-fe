@@ -6,6 +6,10 @@ import { Eye, EyeOff } from "lucide-react";
 import { validate } from "../utils/validate";
 import { useAuth } from "../context/UseAuth";
 
+const isValidEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" className="flex-shrink-0">
     <path
@@ -354,11 +358,12 @@ export function LoginForm({
 
 // ── SCREEN: Sign up form ──────────────────────────────────
 function SignupForm({
-  onSubmit,
   onBack,
   onSignIn,
   showPassword,
   onShowPassword,
+  showPassword2,
+  onShowPassword2,
 }) {
   const [form, setForm] = useState({
     name: "",
@@ -367,11 +372,84 @@ function SignupForm({
     password2: "",
   });
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
     validate(name, value, setErrors);
+  };
+
+  const getPasswordStrength = (password) => {
+    return {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[^A-Za-z0-9]/.test(password),
+    };
+  };
+
+  const passwordStrength = getPasswordStrength(form.password);
+  const strengthScore = Object.values(passwordStrength).filter(Boolean).length;
+
+  const reg = new RegExp("^((072|078|073))[0-9]{7}$", "i");
+
+  const { signUp } = useAuth();
+
+  const handleSignUp = async () => {
+    setErrors({});
+    if (
+      !validate("email", form.email, setErrors) ||
+      !validate("name", form.name, setErrors) ||
+      !validate("phone", form.phone, setErrors) ||
+      !validate("password", form.password, setErrors) ||
+      !validate("password2", form.password2, setErrors)
+    )
+      return;
+
+    if (!isValidEmail(form.email)) {
+      setErrors({ email: "Email is invalid" });
+      return;
+    }
+
+    if (!reg.test(form.phone)) {
+      setErrors({ phone: "Invalid phone number" });
+      return;
+    }
+    if (strengthScore < 4) {
+      setErrors({ password: "Your password is weak" });
+      return;
+    }
+
+    if (form.password !== form.password2) {
+      setErrors({
+        password: "Password don't match",
+        password2: "Password don't match",
+      });
+      return;
+    }
+
+    setLoading(true);
+    const loginResponse = await signUp(
+      form.name,
+      form.email,
+      form.phone,
+      form.password,
+    );
+
+    if (loginResponse?.error) {
+      console.log(loginResponse?.error);
+
+      setErrors({
+        general: loginResponse.error?.message || "Creating account failed",
+      });
+      setLoading(false);
+      return;
+    }
+
+    navigate("/auth");
   };
 
   return (
@@ -399,6 +477,8 @@ function SignupForm({
       <p className="text-sm text-surface-400 mb-6">
         Join thousands of happy customers
       </p>
+
+      {errors.general && <ResponseCard type="error" message={errors.general} />}
 
       <button className="w-full flex items-center justify-center gap-3 bg-white/5 border border-white/10 hover:bg-white/8 hover:border-white/20 rounded-xl py-3 text-sm font-medium text-surface-900 transition-all mb-5">
         <GoogleIcon /> Sign up with Google
@@ -457,6 +537,28 @@ function SignupForm({
           }
         />
         <Input
+          label="Phone number"
+          type="number"
+          placeholder="0788000000"
+          value={form.phone}
+          name="phone"
+          onChange={handleChange}
+          error={errors.phone}
+          icon={
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.35 2 2 0 0 1 3.6 1.17h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6 6l.73-.73a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+            </svg>
+          }
+        />
+        <Input
           label="Password"
           type={showPassword ? "text" : "password"}
           placeholder="Min. 8 characters"
@@ -486,10 +588,35 @@ function SignupForm({
             )
           }
         />
+        {strengthScore < 5 && (
+          <p className="text-xs text-surface-400">
+            Use at least 8 chars, one lowercase, one uppercase, one number and
+            one symbol
+          </p>
+        )}
+
+        <div className="flex gap-1 mt-2">
+          {[1, 2, 3, 4, 5].map((level) => (
+            <div
+              key={level}
+              className={`h-0.5 flex-1 rounded transition-all ${
+                strengthScore >= level
+                  ? strengthScore <= 2
+                    ? "bg-red-500"
+                    : strengthScore === 3
+                      ? "bg-yellow-500"
+                      : strengthScore === 4
+                        ? "bg-blue-500"
+                        : "bg-green-500"
+                  : "bg-gray-300"
+              }`}
+            />
+          ))}
+        </div>
 
         <Input
           label="Re-enter password"
-          type={showPassword ? "text" : "password"}
+          type={showPassword2 ? "text" : "password"}
           placeholder="Min. 8 characters"
           value={form.password2}
           onChange={handleChange}
@@ -508,6 +635,13 @@ function SignupForm({
               <rect x="3" y="11" width="18" height="11" rx="2" />
               <path d="M7 11V7a5 5 0 0 1 10 0v4" />
             </svg>
+          }
+          eye={
+            showPassword2 ? (
+              <Eye size={15} onClick={onShowPassword2} />
+            ) : (
+              <EyeOff size={15} onClick={onShowPassword2} />
+            )
           }
         />
       </div>
@@ -528,16 +662,19 @@ function SignupForm({
         size="lg"
         disabled={
           !!errors.email ||
+          !!errors.name ||
+          !!errors.phone ||
           !!errors.password ||
           !!errors.password2 ||
           !form.name ||
           !form.email ||
+          !form.phone ||
           !form.password ||
           !form.password2
         }
-        onClick={() => onSubmit({ ...form, isGuest: false })}
+        onClick={handleSignUp}
       >
-        Create Account →
+        {loading ? "Signing up..." : "Create Account →"}
       </Button>
 
       <p className="text-xs text-surface-500 text-center">
@@ -569,8 +706,6 @@ function GuestForm({ onSubmit, onBack }) {
     validate(name, value, setErrors);
   };
 
-  const location = useLocation();
-
   const handleLogin = async () => {
     setErrors({});
     if (
@@ -580,6 +715,10 @@ function GuestForm({ onSubmit, onBack }) {
     )
       return;
 
+    if (!isValidEmail(form.email)) {
+      setErrors({ email: "Email is invalid" });
+      return;
+    }
     if (!reg.test(form.phone)) {
       setErrors({ phone: "Invalid phone number" });
       return;
@@ -589,7 +728,7 @@ function GuestForm({ onSubmit, onBack }) {
 
     if (loginResponse?.error) {
       console.log(loginResponse?.error);
-      
+
       setErrors({
         general: loginResponse.error?.message || "Guest booking failed",
       });
@@ -756,6 +895,7 @@ export default function AuthPage({ navigate }) {
     location.state?.screen ? location.state.screen : "choose",
   ); // choose | login | signup | guest
   const [showPassword, setShowPassword] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
   const { user } = useAuth();
   const token = localStorage.getItem("token");
 
@@ -768,20 +908,6 @@ export default function AuthPage({ navigate }) {
       } else navigate("/admin/overview");
     }
   }, []);
-
-  const handleSubmit = (data) => {
-    if (data.isGuest) {
-      // Guest → go straight to booking
-      navigate("booking", {
-        user: data.name,
-        isGuest: true,
-        phone: data.phone,
-      });
-    } else {
-      // Authenticated user → go to dashboard
-      navigate("dashboard", { user: data.name || data.email, isGuest: false });
-    }
-  };
 
   return (
     <div className="min-h-screen bg-surface-100 flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden">
@@ -810,7 +936,7 @@ export default function AuthPage({ navigate }) {
         }}
       />
 
-      <div className="relative z-10 w-full max-w-sm pt-20">
+      <div className="relative z-10 w-full max-w-lg pt-20">
         {/* Logo */}
         <div className="text-center mb-8">
           <button
@@ -844,18 +970,16 @@ export default function AuthPage({ navigate }) {
           )}
           {screen === "signup" && (
             <SignupForm
-              onSubmit={handleSubmit}
               onBack={() => setScreen("choose")}
               onSignIn={() => setScreen("login")}
               showPassword={showPassword}
               onShowPassword={() => setShowPassword(!showPassword)}
+              showPassword2={showPassword2}
+              onShowPassword2={() => setShowPassword2(!showPassword2)}
             />
           )}
           {screen === "guest" && (
-            <GuestForm
-              onSubmit={handleSubmit}
-              onBack={() => setScreen("choose")}
-            />
+            <GuestForm onBack={() => setScreen("choose")} />
           )}
         </Card>
       </div>

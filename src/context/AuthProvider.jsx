@@ -4,12 +4,12 @@ import api from "../utils/api";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(
-    () => JSON.parse(localStorage.getItem("carwash-user")) || null
+    () => JSON.parse(localStorage.getItem("carwash-user")) || null,
   );
   const [loading, setLoading] = useState(true);
 
-  const isLoadingRef   = useRef(false);
-  const didLogoutRef   = useRef(false);
+  const isLoadingRef = useRef(false);
+  const didLogoutRef = useRef(false);
   // NEW: tracks that we're in a fresh login attempt — suppress loadUser
   const loginInFlightRef = useRef(false);
 
@@ -50,7 +50,6 @@ export function AuthProvider({ children }) {
       const fetchedUser = res.data?.data?.user;
       setUser(fetchedUser);
       localStorage.setItem("carwash-user", JSON.stringify(fetchedUser));
-
     } catch (err) {
       // Only refresh on 401, not network errors or 5xx
       if (err?.response?.status !== 401) {
@@ -68,7 +67,6 @@ export function AuthProvider({ children }) {
         const fetchedUser = userRes.data?.data?.user;
         setUser(fetchedUser);
         localStorage.setItem("carwash-user", JSON.stringify(fetchedUser));
-
       } catch (_) {
         // Refresh failed — clear once, do NOT loop
         clearSession();
@@ -84,10 +82,19 @@ export function AuthProvider({ children }) {
     loadUser();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const signUp = useCallback(async (name, email, password, phone) => {
+    try {
+      const res = await api.post("/auth/register", { name,email, password,phone });
+      return res.data;
+    } catch (error) {
+      return { error: error.response?.data || "Registering user failed" };
+    }
+  }, []);
+
   const login = useCallback(async (email, password) => {
     // ── Signal: login in flight, suppress any loadUser ──
     loginInFlightRef.current = true;
-    didLogoutRef.current     = false;
+    didLogoutRef.current = false;
 
     // ── Clear stale token BEFORE attempting login ────────
     // This is the key fix: if a bad token is in storage and
@@ -104,24 +111,22 @@ export function AuthProvider({ children }) {
       setUser(loggedInUser);
 
       return res.data;
-
     } catch (error) {
       // Login failed — session already cleared above, nothing to loop on
       return { error: error.response?.data || "Login failed" };
-
     } finally {
       // Always release the lock after login resolves/rejects
       loginInFlightRef.current = false;
     }
   }, []);
 
-  const guestLogin = useCallback(async (name, phone,email) => {
+  const guestLogin = useCallback(async (name, phone, email) => {
     loginInFlightRef.current = true;
-    didLogoutRef.current     = false;
+    didLogoutRef.current = false;
     localStorage.removeItem("token");
 
     try {
-      const res = await api.post("/auth/guest", { name, phone,email });
+      const res = await api.post("/auth/guest", { name, phone, email });
       const { token, user: guestUser } = res.data;
 
       localStorage.setItem("token", token);
@@ -150,33 +155,54 @@ export function AuthProvider({ children }) {
 
   const changePassword = useCallback(async (currentPassword, newPassword) => {
     try {
-      const res = await api.put("/auth/change-password", { currentPassword, newPassword });
+      const res = await api.put("/auth/change-password", {
+        currentPassword,
+        newPassword,
+      });
       return res.data;
     } catch (err) {
       return { error: err.response?.data };
     }
   }, []);
 
-
   //services interface provided to context consumers
-  const getServices = useCallback(async() => {
+  const getServices = useCallback(async () => {
     try {
       const res = await api.get("/services");
-      return res.data?.data?.services
+      return res.data?.data?.services;
     } catch (err) {
       return { error: err.response?.data || "Failed to fetch services" };
     }
   }, []);
 
-
   //users
-  const getWashers = useCallback(async() => {
+  const getWashers = useCallback(async () => {
     try {
       const res = await api.get("/users/washers");
-      
+
       return res.data?.data?.washers;
     } catch (err) {
       return { error: err.response?.data || "Failed to fetch washers" };
+    }
+  }, []);
+
+  const fetchHistory = useCallback(async () => {
+    try {
+      const res = await api.get("/bookings?limit=50");
+      return res.data?.data;
+    } catch (err) {
+      return { error: err.response?.data || "Failed to fetch washing history" };
+    }
+  }, []);
+
+  const createBooking = useCallback(async (data) => {
+    try {
+      const res = await api.post("/bookings", data);
+      return res.data;
+    } catch (err) {
+      return {
+        error: err.response?.data || "Failed to create booking session",
+      };
     }
   }, []);
 
@@ -184,6 +210,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         user,
+        signUp,
         login,
         guestLogin,
         logout,
@@ -191,7 +218,8 @@ export function AuthProvider({ children }) {
         isAuthenticated: !!user,
         updateProfile,
         changePassword,
-        
+        fetchHistory,
+        createBooking,
 
         getServices,
 

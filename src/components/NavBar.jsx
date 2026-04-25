@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "./UI";
-import { Menu } from "lucide-react";
+import { Menu, Bell } from "lucide-react";
 import logo from "../assets/car_wash_logo.png";
+import { useAuth } from "../context/UseAuth";
+import { useBookingStore } from "../utils/bookingStore";
 
 const NavBar = () => {
   const navigate = useNavigate();
@@ -14,6 +16,13 @@ const NavBar = () => {
     ["Services & Pricing", "/our-services"],
     ["Get in Touch", "/contact"],
   ];
+
+  const {user} = useAuth();
+
+  const [notifCount] = useState(2);
+  const resetBooking = useBookingStore((state) => state.resetBooking);
+  
+  
 
   return (
     <nav className="fixed top-0 inset-x-0 z-50 bg-surface-50 backdrop-blur-md border-b border-white/6">
@@ -42,21 +51,63 @@ const NavBar = () => {
               {l}
             </a>
           ))}
+          {user && (
+            <a
+              href={"/dashboard"}
+              onClick={(e) => {
+                e.preventDefault();
+                navigate("/dashboard");
+              }}
+              className={`text-sm hover:text-primary-500 transition-colors ${location.pathname === "/dashboard" ? "text-primary-500" : "text-surface-400"}`}
+            >
+              My Dashboard
+            </a>
+          )}
         </div>
         <div className="hidden md:flex ml-auto gap-3">
-          {location.pathname !== "/auth" && (
+          {!location.pathname.includes("booking") && (
             <Button
-              variant="ghost"
               size="sm"
-              onClick={() => navigate("/auth", { state: { screen: "login" } })}
+              onClick={() => {
+                (resetBooking(), navigate("/booking"));
+              }}
             >
-              Sign In
+              Book Now
             </Button>
           )}
-
-          <Button size="sm" onClick={() => navigate("/booking")}>
-            Book Now
-          </Button>
+          {user ? (
+            <div className="flex items-center gap-3">
+              {/* Notifications */}
+              <button
+                onClick={() => navigate("/notifications")}
+                className="relative w-9 h-9 flex items-center justify-center rounded-full border border-white/8 hover:border-primary-500/40 transition-all"
+              >
+                <Bell className="w-5 h-5 text-surface-400" />
+                {notifCount > 0 && (
+                  <span className="absolute top-1.5 right-2 w-2 h-2 bg-primary-500 rounded-full text-[3px] font-bold text-surface-900 flex items-center justify-center"></span>
+                )}
+              </button>
+              {/* Avatar */}
+              <button
+                onClick={() => navigate("/profile")}
+                className="w-9 h-9 rounded-full bg-primary-500 border border-primary-500/30 flex items-center justify-center font-display text-primary-50 text-sm hover:bg-primary-500/30 transition-all"
+              >
+                {user?.initials}
+              </button>
+            </div>
+          ) : (
+            location.pathname !== "/auth" && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  navigate("/auth", { state: { screen: "login" } })
+                }
+              >
+                Sign In
+              </Button>
+            )
+          )}
         </div>
 
         <Button

@@ -63,7 +63,7 @@ function AddonSkeleton() {
 }
 
 // ── Main service card ──────────────────────────────────────
-function ServiceCard({ service, selected, onSelect, onBook }) {
+export function ServiceCard({ service, selected, onSelect, onBook }) {
   const isSelected = selected === service._id;
   const isPopular = service.tag === "Most Popular";
 
@@ -234,8 +234,9 @@ export default function ServicesPage({ navigate }) {
   const [selectedSvc, setSelectedSvc] = useState(null);
   const [selectedAddons, setSelectedAddons] = useState([]);
   const [faqOpen, setFaqOpen] = useState(null);
-    const updateBooking = useBookingStore((state) => state.updateBooking);
-  
+  const updateBooking = useBookingStore((state) => state.updateBooking);
+    const resetBooking = useBookingStore((state) => state.resetBooking);
+
 
   async function fetchServices() {
     try {
@@ -248,7 +249,7 @@ export default function ServicesPage({ navigate }) {
 
       setServices(result || []);
     } catch (err) {
-      setError("Failed to load services. Please try again.");
+      setError("Failed to load packages. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -276,7 +277,8 @@ export default function ServicesPage({ navigate }) {
 
   const handleBook = useCallback(
     (service) => {
-      updateBooking({service})
+      resetBooking();
+      updateBooking({ service });
       navigate("/booking", {
         state: {
           selected: service._id,
@@ -318,16 +320,6 @@ export default function ServicesPage({ navigate }) {
       </section>
 
       <div className="w-full mx-auto px-4 pb-20">
-        {/* ── ERROR ──────────────────────────────────────── */}
-        {error && (
-          <ResponseCard
-            title="Error"
-            message={error}
-            type="error"
-            onRetry={fetchServices}
-          />
-        )}
-
         {/* ── SERVICE GRID ───────────────────────────────── */}
         <section className="mb-14">
           <div className="flex items-center justify-between mb-6">
@@ -335,6 +327,16 @@ export default function ServicesPage({ navigate }) {
               Choose your package
             </h2>
           </div>
+
+          {/* ── ERROR ──────────────────────────────────────── */}
+          {error && (
+            <ResponseCard
+              title="Error"
+              message={error}
+              type="error"
+              onRetry={fetchServices}
+            />
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {loading

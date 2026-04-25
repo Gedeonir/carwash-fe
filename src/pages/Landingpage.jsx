@@ -256,7 +256,7 @@ export default function LandingPage({ navigate }) {
                   <Button
                     variant={i === 2 ? "primary" : "outline"}
                     className="w-full mt-4"
-                    onClick={() => navigate("auth")}
+                    onClick={() => navigate("booking")}
                   >
                     Book this wash
                   </Button>
@@ -313,7 +313,7 @@ export default function LandingPage({ navigate }) {
           <p className="text-surface-400 mb-8">
             Book in under 2 minutes. We handle the rest.
           </p>
-          <Button size="lg" onClick={() => navigate("auth")}>
+          <Button size="lg" onClick={() => navigate("booking")}>
             Book Your Wash →
           </Button>
         </div>

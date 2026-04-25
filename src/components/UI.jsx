@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 // ── Button ──────────────────────────────────────────────
 export function Button({
   children,
@@ -122,7 +124,7 @@ export function Badge({ children, variant = "primary" }) {
 export function TopBar({ title, onBack, rightAction }) {
   return (
     <div className="sticky top-0 z-40 bg-surface-50 backdrop-blur-md border-b border-white/6">
-      <div className="mx-auto flex items-center gap-4 px-4 py-4">
+      <div className="mx-auto flex items-center gap-4 py-4">
         {onBack && (
           <button
             onClick={onBack}
@@ -153,20 +155,24 @@ export function TopBar({ title, onBack, rightAction }) {
 
 // ── Progress Steps ────────────────────────────────────────
 export function ProgressSteps({ steps, current }) {
+  const navigate=useNavigate();
   return (
     <div className="flex items-center justify-center px-6 py-4">
-      {steps.map((step, i) => (
+      {steps.map(([label, path], i) => (
         <div key={i} className="flex items-center">
-          <div className="flex flex-col items-center">
+          <div
+            className="flex flex-col items-center cursor-pointer"
+            onClick={() => navigate(path)} // 👈 optional navigation
+          >
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium border-2 transition-all
-              ${
-                i < current
-                  ? "bg-primary-500 border-primary-500 text-surface-900"
-                  : i === current
-                    ? "bg-surface-800 border-primary-500 text-primary-600"
-                    : "bg-surface-800 border-white/10 text-surface-100"
-              }`}
+          ${
+            i < current
+              ? "bg-primary-500 border-primary-500 text-surface-900"
+              : i === current
+                ? "bg-surface-800 border-primary-500 text-primary-600"
+                : "bg-surface-800 border-white/10 text-surface-100"
+          }`}
             >
               {i < current ? (
                 <svg
@@ -184,14 +190,16 @@ export function ProgressSteps({ steps, current }) {
                 i + 1
               )}
             </div>
+
             <span
               className={`text-xs mt-1 whitespace-nowrap ${
                 i === current ? "text-primary-500" : "text-surface-600"
               }`}
             >
-              {step}
+              {label}
             </span>
           </div>
+
           {i < steps.length - 1 && (
             <div
               className={`h-px w-8 mx-1 mb-4 transition-all ${
@@ -241,11 +249,18 @@ export function Divider({ className = "" }) {
   return <div className={`h-px bg-white/8 ${className}`} />;
 }
 
-export function ResponseCard({ title, message, type = "success", onRetry }) {
+export function ResponseCard({
+  title,
+  message,
+  type = "success",
+  onRetry,
+  text = "Try again",
+}) {
   const colors = {
     success: "bg-success bg-opacity-10 text-success border-success",
     error: "bg-error bg-opacity-10 text-error border-error",
     info: "bg-info bg-opacity-10 text-info border-info",
+    warning: "bg-warning bg-opacity-10 text-warning border-warning",
   };
   return (
     <div
@@ -257,8 +272,12 @@ export function ResponseCard({ title, message, type = "success", onRetry }) {
       </div>
 
       {onRetry && (
-        <Button size="sm" variant="danger" onClick={onRetry}>
-          Try Again
+        <Button
+          size="sm"
+          variant={type === "error" ? "danger" : "primary"}
+          onClick={onRetry}
+        >
+          {text}
         </Button>
       )}
     </div>
