@@ -82,7 +82,7 @@ export function AuthProvider({ children }) {
     loadUser();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const signUp = useCallback(async (name, email, password, phone) => {
+  const signUp = useCallback(async (name, email, phone,password ) => {
     try {
       const res = await api.post("/auth/register", { name,email, password,phone });
       return res.data;

@@ -93,11 +93,11 @@ export default function Customers() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full  bg-surface-50">
               <thead>
                 <tr className="border-b border-surface-200">
                   {["Customer", "Email", "Phone", "Tier", "Loyalty Pts", "Cars", "Joined"].map(h => (
-                    <th key={h} className="text-left text-xs font-semibold text-surface-500 pb-3 pr-4 whitespace-nowrap">{h}</th>
+                    <th key={h} className="py-3 px-3 text-left text-xs font-semibold text-surface-500 pb-3 pr-4 whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -133,7 +133,7 @@ export default function Customers() {
       </div>
 
       {/* Mobile cards */}
-      <div className="md:hidden flex flex-col gap-3">
+      <div className="md:hidden flex flex-col gap-3  bg-surface-50">
         {loading
           ? [1,2,3,4].map(i => <CustomerSkeleton key={i} />)
           : customers.length === 0

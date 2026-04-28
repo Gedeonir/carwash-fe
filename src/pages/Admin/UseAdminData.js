@@ -9,24 +9,36 @@ export function useAdminFetch(fetchFn, deps = [], options = {}) {
   const [error,   setError]   = useState(null);
   const abortRef = useRef(null);
 
-  const execute = useCallback(async (...args) => {
-    if (abortRef.current) abortRef.current.abort();
-    abortRef.current = new AbortController();
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await fetchFn(...args, abortRef.current.signal);
+const execute = useCallback(async (...args) => {
+  if (abortRef.current) abortRef.current.abort();
+
+  const controller = new AbortController();
+  abortRef.current = controller;
+
+  setLoading(true);
+  setError(null);
+
+  try {
+    const result = await fetchFn(...args, controller.signal);
+
+    if (abortRef.current === controller) {
       setData(result);
-      return result;
-    } catch (err) {
-      if (err.name !== "CanceledError" && err.name !== "AbortError") {
+    }
+
+    return result;
+  } catch (err) {
+    if (err.name !== "CanceledError" && err.name !== "AbortError") {
+      if (abortRef.current === controller) {
         setError(err?.response?.data?.message || "Something went wrong");
       }
-      return null;
-    } finally {
+    }
+    return null;
+  } finally {
+    if (abortRef.current === controller) {
       setLoading(false);
     }
-  }, deps); // eslint-disable-line
+  }
+}, deps);
 
   useEffect(() => {
     if (immediate) execute();
@@ -61,7 +73,7 @@ export function useAdminBookings(params = {}) {
       return res.data;
     },
     [status, date, washer, page, limit],
-    { initialData: { data: [], meta: {} } }
+    { initialData: null }
   );
 }
 

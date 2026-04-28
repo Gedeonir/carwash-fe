@@ -20,7 +20,19 @@ const WASHER_STATUS = {
 };
 
 function StatSkeleton() {
-  return <div className="bg-surface-50 border border-surface-200 rounded-2xl p-5 animate-pulse h-28" />;
+  return(
+    <Card className="p-5 animate-pulse">
+      <div className="flex items-start justify-between mb-3">
+        <div
+          className={`w-10 h-10 rounded-xl flex items-center justify-center bg-surface-200`}
+        />
+          <div  className="w-6 bg-surface-200 h-2 rounded-lg"/>
+
+      </div>
+      <div className="text-2xl font-display text-surface-900 mb-0.5 h-2 rounded-lg w-1/5 bg-surface-200"/>
+      <div className="text-sm text-surface-400 w-2/5 bg-surface-200 h-2 rounded-lg"/>
+    </Card>
+  )
 }
 
 function RowSkeleton() {

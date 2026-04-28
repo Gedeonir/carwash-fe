@@ -104,7 +104,7 @@ export default function Bookings() {
     "in-progress",
     "completed",
     "cancelled",
-  ];
+  ];  
 
   return (
     <div>
@@ -139,7 +139,7 @@ export default function Bookings() {
       </div>
 
       {/* Status tabs */}
-      <div className="flex flex-nowrap gap-2 mb-5 overflow-x-auto scrollbar-hide border">
+      <div className="flex flex-nowrap gap-2 mb-5 overflow-x-auto scrollbar-hide border bg-surface-50 py-3 px-3">
         {STATUS_FILTERS.map((s) => (
           <button
             key={s}
@@ -181,7 +181,7 @@ export default function Bookings() {
       )}
 
       {/* Desktop table */}
-      <div className="hidden md:block overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto bg-surface-50">
         {loading ? (
           <TableSkeleton />
         ) : (
@@ -201,7 +201,7 @@ export default function Bookings() {
                 ].map((h) => (
                   <th
                     key={h}
-                    className="text-left text-xs font-semibold text-surface-500 pb-3 pr-4 whitespace-nowrap"
+                    className="text-left py-3 px-3 text-xs font-semibold text-surface-500 pb-3 pr-4 whitespace-nowrap"
                   >
                     {h}
                   </th>

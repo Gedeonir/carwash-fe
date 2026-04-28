@@ -3,12 +3,9 @@ import { Button, Input, Card, ResponseCard } from "../components/UI";
 import NavBar from "../components/NavBar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import { validate } from "../utils/validate";
+import { getPasswordStrength, isValidEmail, reg, validate } from "../utils/validate";
 import { useAuth } from "../context/UseAuth";
 
-const isValidEmail = (email) => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-};
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" className="flex-shrink-0">
@@ -381,20 +378,9 @@ function SignupForm({
     validate(name, value, setErrors);
   };
 
-  const getPasswordStrength = (password) => {
-    return {
-      length: password.length >= 8,
-      uppercase: /[A-Z]/.test(password),
-      lowercase: /[a-z]/.test(password),
-      number: /[0-9]/.test(password),
-      special: /[^A-Za-z0-9]/.test(password),
-    };
-  };
-
   const passwordStrength = getPasswordStrength(form.password);
   const strengthScore = Object.values(passwordStrength).filter(Boolean).length;
 
-  const reg = new RegExp("^((072|078|073))[0-9]{7}$", "i");
 
   const { signUp } = useAuth();
 
@@ -432,18 +418,17 @@ function SignupForm({
     }
 
     setLoading(true);
-    const loginResponse = await signUp(
+    const res = await signUp(
       form.name,
       form.email,
       form.phone,
       form.password,
     );
 
-    if (loginResponse?.error) {
-      console.log(loginResponse?.error);
+    if (res?.error) {
 
       setErrors({
-        general: loginResponse.error?.message || "Creating account failed",
+        general: res.error?.message || "Creating account failed",
       });
       setLoading(false);
       return;

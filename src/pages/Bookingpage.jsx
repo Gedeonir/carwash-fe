@@ -110,6 +110,9 @@ export default function BookingPage({ navigate, bookingData, onBook }) {
     handleAddOns();
   }, [services, booking.service]);
 
+  console.log(location);
+  
+
   return (
     <div className="min-h-screen bg-surface-100 pb-32">
       <NavBar />

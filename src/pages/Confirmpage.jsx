@@ -136,8 +136,8 @@ export const WashersList = ({ onClose }) => {
       distance: getDistance(
         userLocation.lat,
         userLocation.lng,
-        w.savedLocations[0]?.coordinates?.lat,
-        w.savedLocations[0]?.coordinates?.lng,
+        w.zone?.coordinates?.lat,
+        w.zone?.coordinates?.lng,
       ),
     }))
     .filter((w) => {

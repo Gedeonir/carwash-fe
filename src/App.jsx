@@ -21,23 +21,27 @@ const Bookings = lazy(() => import("./pages/Admin/Bookings"));
 const Customers = lazy(() => import("./pages/Admin/Customers"));
 const Team = lazy(() => import("./pages/Admin/Team"));
 const Analytics = lazy(() => import("./pages/Admin/Analytics"));
+const AddTeamMember=lazy(()=> import("./pages/Admin/AddTeamMember"));
 
 const NotFound = lazy(() => import("./pages/NotFound"));
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { ToastProvider } from "./components/Toast";
-const Schedule=lazy(()=> import("./pages/Schedule"));
+import { useAuth } from "./context/UseAuth";
+const Schedule = lazy(() => import("./pages/Schedule"));
 const PageLoader = lazy(() => import("./components/PageLoader"));
 
 export default function App() {
   const [bookingData, setBookingData] = useState({});
 
   const navigate = useNavigate();
+  const {user}=useAuth()
 
   const sharedProps = {
     navigate,
     bookingData,
     onBook: (data) => setBookingData(data),
+    user
   };
 
   return (
@@ -72,7 +76,7 @@ export default function App() {
               }
             />
 
-             <Route
+            <Route
               path="/booking/schedule"
               element={
                 <ProtectedRoute
@@ -118,7 +122,11 @@ export default function App() {
             <Route
               path="/admin/*"
               element={
-                <ProtectedRoute allowedRoles={["admin"]} path={"/auth"} screen={"login"}>
+                <ProtectedRoute
+                  allowedRoles={["admin"]}
+                  path={"/auth"}
+                  screen={"login"}
+                >
                   <DashboardLayout />
                 </ProtectedRoute>
               }
@@ -139,18 +147,25 @@ export default function App() {
                 element={<Analytics {...sharedProps} />}
               />
               <Route
-              path="profile"
-              element={
-                  <ProfilePage {...sharedProps} />
-              }
-            />
+                path="profile"
+                element={<ProfilePage {...sharedProps} />}
+              />
+
+              <Route
+                path="team/new"
+                element={<AddTeamMember {...sharedProps} />}
+              />
               <Route path="*" element={<NotFound />} />
             </Route>
 
             <Route
               path="/profile"
               element={
-                <ProtectedRoute allowedRoles={["customer"]} path={"/auth"} screen={"login"}>
+                <ProtectedRoute
+                  allowedRoles={["customer"]}
+                  path={"/auth"}
+                  screen={"login"}
+                >
                   <ProfilePage {...sharedProps} />
                 </ProtectedRoute>
               }
@@ -160,6 +175,7 @@ export default function App() {
               element={<NotificationsPage {...sharedProps} />}
             />
             <Route path="*" element={<NotFound />} />
+
           </Routes>
         </ToastProvider>
       </Suspense>
