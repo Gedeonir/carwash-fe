@@ -1,6 +1,7 @@
 import { Button, StatCard, Badge, Card } from "../../components/UI";
 import { useNavigate } from "react-router-dom";
 import { useAdminStats, useAdminBookings, useWashers } from "./UseAdminData";
+import { getGreeting } from "../../utils/getGreeting";
 
 const STATUS_CONFIG = {
   confirmed:    { label: "Confirmed",   variant: "info" },
@@ -63,7 +64,7 @@ export default function Overview() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-display text-3xl text-surface-900">Good morning, Admin 👋</h1>
+          <h1 className="font-display text-3xl text-surface-900">{getGreeting()}, Admin 👋</h1>
           <p className="text-surface-400 text-sm mt-1">Here's what's happening today</p>
         </div>
         <Button size="sm" onClick={() => navigate("/admin/bookings")}>View all bookings →</Button>
@@ -169,7 +170,7 @@ export default function Overview() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium text-surface-900 truncate">{w.name}</div>
-                      <div className="text-xs text-surface-400">{w.zone || "—"} · ⭐ {w.rating}</div>
+                      <div className="text-xs text-surface-400">{w.zone?.address || "—"} · ⭐ {w.rating}</div>
                     </div>
                     <span className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize ${WASHER_STATUS[statusKey] || "bg-surface-100 text-surface-500"}`}>
                       {statusKey}
