@@ -12,6 +12,7 @@ export const useBookingStore = create(
         location: null,
         washer: null,
         notes: null,
+        payment:null,
         total: 0,
       },
       updateBooking: (data) =>
@@ -28,6 +29,7 @@ export const useBookingStore = create(
             location: null,
             washer: null,
             notes: null,
+            payment:null,
             total: 0,
           },
         }),

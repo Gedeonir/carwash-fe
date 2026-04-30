@@ -33,19 +33,59 @@ const TAG_BADGE = {
 };
 
 // ── Skeleton card ──────────────────────────────────────────
-function ServiceCardSkeleton() {
+export function ServiceCardSkeleton() {
   return (
-    <div className="bg-surface-50 border border-surface-200 rounded-2xl p-6 animate-pulse flex flex-col gap-4">
-      <div className="flex items-start justify-between">
-        <div className="w-12 h-12 rounded-xl bg-surface-200" />
-        <div className="w-20 h-5 rounded-full bg-surface-200" />
+    <div className="animate-pulse flex flex-col bg-surface-50 rounded-2xl border-2 overflow-hidden">
+      <div className="p-6 flex flex-col flex-1">
+        {/* Top row */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="w-12 h-12 rounded-xl bg-surface-200" />
+          <div className="w-12 h-4 rounded bg-surface-200" />
+        </div>
+
+        {/* Title */}
+        <div className="h-5 w-2/3 bg-surface-200 rounded mb-2" />
+
+        {/* Description */}
+        <div className="space-y-2 mb-4">
+          <div className="h-3 bg-surface-200 rounded w-full" />
+          <div className="h-3 bg-surface-200 rounded w-5/6" />
+          <div className="h-3 bg-surface-200 rounded w-4/6" />
+        </div>
+
+        {/* Duration + Price */}
+        <div className="flex justify-between items-center mb-4">
+          <div className="h-6 w-20 bg-surface-200 rounded-full" />
+          <div className="h-6 w-24 bg-surface-200 rounded" />
+        </div>
+
+        {/* Includes / Excludes box */}
+        {!location.pathname === "/" && (
+          <div className="bg-surface-100 rounded-xl p-4 border border-surface-200 h-60 mb-4">
+            <div className="space-y-2">
+              <div className="h-3 w-24 bg-surface-200 rounded" />
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-surface-200" />
+                  <div className="h-3 w-3/4 bg-surface-200 rounded" />
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-2 mt-4">
+              <div className="h-3 w-24 bg-surface-200 rounded" />
+              {[1, 2].map((i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-surface-200" />
+                  <div className="h-3 w-2/3 bg-surface-200 rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* Button */}
+        <div className="h-10 w-full bg-surface-200 rounded-xl" />
       </div>
-      <div className="space-y-2">
-        <div className="h-5 bg-surface-200 rounded w-2/3" />
-        <div className="h-3.5 bg-surface-200 rounded w-full" />
-        <div className="h-3.5 bg-surface-200 rounded w-3/4" />
-      </div>
-      <div className="h-8 bg-surface-200 rounded-xl mt-auto" />
     </div>
   );
 }
@@ -83,7 +123,7 @@ export function ServiceCard({ service, selected, onSelect, onBook }) {
         {/* Top row: icon + tag */}
         <div className="flex items-start justify-between mb-4">
           <div
-            className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all ${isSelected ? "bg-primary-500/15" : "bg-surface-100 group-hover:bg-primary-500/10"}`}
+            className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all ${isSelected ? "bg-primary-500" : "bg-surface-100 group-hover:bg-primary-500"}`}
           >
             {service.icon || "💧"}
           </div>
@@ -101,7 +141,7 @@ export function ServiceCard({ service, selected, onSelect, onBook }) {
         </p>
 
         {/* Duration chips */}
-        <div className="flex flex-nowrap justify-between gap-2 mb-5">
+        <div className="flex flex-nowrap justify-between gap-2 mb-2">
           <div>
             <span className="text-xs bg-surface-100 text-surface-500 rounded-full px-2.5 py-1">
               ⏱ {service.durationMinutes} min
@@ -119,68 +159,69 @@ export function ServiceCard({ service, selected, onSelect, onBook }) {
           </div>
         </div>
         {/* Expanded: includes / excludes */}
-        <div className="mb-4 bg-surface-100 rounded-xl p-4 border border-surface-200">
-          {(service.includes || []).length > 0 && (
-            <div className="mb-3">
-              <p className="text-xs font-semibold text-surface-500 uppercase tracking-wide mb-2">
-                Included
-              </p>
-              <div className="flex flex-col gap-1">
-                {service.includes.map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-start gap-2 text-xs text-surface-600"
-                  >
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#00C9B1"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      className="flex-shrink-0 mt-0.5"
+        {!location.pathname === "/" && (
+          <div className="mb-4 bg-surface-100 rounded-xl p-4 border border-surface-200 h-60 overflow-y-auto scrollbar-hide">
+            {(service.includes || []).length > 0 && (
+              <div className="mb-3">
+                <p className="text-xs font-semibold text-surface-500 uppercase tracking-wide mb-2">
+                  Included
+                </p>
+                <div className="flex flex-col gap-1">
+                  {service.includes.map((item) => (
+                    <div
+                      key={item}
+                      className="flex items-start gap-2 text-xs text-surface-600"
                     >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    {item}
-                  </div>
-                ))}
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#00C9B1"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        className="flex-shrink-0 mt-0.5"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      {item}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-          {(service.excludes || []).length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-surface-400 uppercase tracking-wide mb-2">
-                Not included
-              </p>
-              <div className="flex flex-col gap-1">
-                {service.excludes.map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-start gap-2 text-xs text-surface-400"
-                  >
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#94a3b8"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      className="flex-shrink-0 mt-0.5"
+            )}
+            {(service.excludes || []).length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-surface-400 uppercase tracking-wide mb-2">
+                  Not included
+                </p>
+                <div className="flex flex-col gap-1">
+                  {service.excludes.map((item) => (
+                    <div
+                      key={item}
+                      className="flex items-start gap-2 text-xs text-surface-400"
                     >
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                    {item}
-                  </div>
-                ))}
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#94a3b8"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        className="flex-shrink-0 mt-0.5"
+                      >
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                      {item}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-
+            )}
+          </div>
+        )}
         {/* CTA */}
         <button
           onClick={(e) => {
@@ -232,11 +273,9 @@ export default function ServicesPage({ navigate }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedSvc, setSelectedSvc] = useState(null);
-  const [selectedAddons, setSelectedAddons] = useState([]);
   const [faqOpen, setFaqOpen] = useState(null);
   const updateBooking = useBookingStore((state) => state.updateBooking);
-    const resetBooking = useBookingStore((state) => state.resetBooking);
-
+  const resetBooking = useBookingStore((state) => state.resetBooking);
 
   async function fetchServices() {
     try {
@@ -260,21 +299,6 @@ export default function ServicesPage({ navigate }) {
     fetchServices();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Collect all add-ons across services (deduped by name)
-  const allAddons = services.length
-    ? [
-        ...new Map(
-          services.flatMap((s) => s.addOns || []).map((a) => [a.name, a]),
-        ).values(),
-      ]
-    : [];
-
-  const toggleAddon = useCallback((name) => {
-    setSelectedAddons((prev) =>
-      prev.includes(name) ? prev.filter((x) => x !== name) : [...prev, name],
-    );
-  }, []);
-
   const handleBook = useCallback(
     (service) => {
       resetBooking();
@@ -285,17 +309,8 @@ export default function ServicesPage({ navigate }) {
         },
       });
     },
-    [navigate],
+    [navigate, resetBooking, updateBooking],
   );
-
-  // Computed totals for the sticky summary bar
-  const selectedService = services.find((s) => s._id === selectedSvc);
-  const selectedAddonObjs = allAddons.filter((a) =>
-    selectedAddons.includes(a.name),
-  );
-  const addonTotal = selectedAddonObjs.reduce((sum, a) => sum + a.price, 0);
-  const grandTotal = (selectedService?.price || 0) + addonTotal;
-  const hasSelection = !!selectedSvc;
 
   return (
     <div className="min-h-screen bg-surface-100">

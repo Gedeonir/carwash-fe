@@ -445,7 +445,7 @@ export default function ConfirmPage({ navigate, bookingData }) {
                   <button
                     key={m.id}
                     onClick={() => updateBooking({ payment: m })}
-                    className={`flex items-center gap-4 p-4 rounded-xl border text-left transition-all ${payment.id === m.id ? "border-primary-500 bg-primary-50" : "border-white/8 bg-surface-50 hover:border-white/15"}`}
+                    className={`flex items-center gap-4 p-4 rounded-xl border text-left transition-all ${payment?.id === m.id ? "border-primary-500 bg-primary-50" : "border-white/8 bg-surface-50 hover:border-white/15"}`}
                   >
                     <span className="text-2xl">{m.icon}</span>
                     <div className="flex-1">
@@ -455,7 +455,7 @@ export default function ConfirmPage({ navigate, bookingData }) {
                       <div className="text-xs text-surface-500">{m.desc}</div>
                     </div>
                     <div
-                      className={`w-4 h-4 rounded-full border-2 flex-shrink-0 transition-all ${payment === m.id ? "border-primary-500 bg-primary-500" : "border-white/25"}`}
+                      className={`w-4 h-4 rounded-full border-2 flex-shrink-0 transition-all ${payment?.id === m.id ? "border-primary-500 bg-primary-500" : "border-white/25"}`}
                     />
                   </button>
                 ))}

@@ -1,30 +1,11 @@
 import Footer from "../components/Footer";
 import NavBar from "../components/NavBar";
-import { Button, Badge } from "../components/UI";
+import { Button, Badge, ResponseCard } from "../components/UI";
 import logo from "../assets/car_wash_logo.png";
-const services = [
-  {
-    name: "Basic Wash",
-    price: "5,000",
-    desc: "Exterior clean & rinse",
-    icon: "💧",
-    tag: "Popular",
-  },
-  {
-    name: "Standard",
-    price: "10,000",
-    desc: "Exterior + interior vacuum",
-    icon: "✨",
-    tag: null,
-  },
-  {
-    name: "Premium Detail",
-    price: "18,000",
-    desc: "Full detail + wax + polish",
-    icon: "🏆",
-    tag: "Best Value",
-  },
-];
+import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "../context/UseAuth";
+import { useBookingStore } from "../utils/bookingStore";
+import { ServiceCard, ServiceCardSkeleton } from "./Servicespage";
 
 const steps = [
   {
@@ -69,6 +50,51 @@ const reviews = [
 ];
 
 export default function LandingPage({ navigate }) {
+  const { getServices } = useAuth();
+
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedSvc, setSelectedSvc] = useState(null);
+  const [faqOpen, setFaqOpen] = useState(null);
+  const updateBooking = useBookingStore((state) => state.updateBooking);
+  const resetBooking = useBookingStore((state) => state.resetBooking);
+
+  async function fetchServices() {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await getServices();
+
+      if (result?.error) throw new Error("API error");
+
+      setServices(result || []);
+    } catch (err) {
+      setError("Failed to load packages. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Fetch services on mount
+  useEffect(() => {
+    fetchServices();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleBook = useCallback(
+    (service) => {
+      resetBooking();
+      updateBooking({ service });
+      navigate("/booking", {
+        state: {
+          selected: service._id,
+        },
+      });
+    },
+    [navigate, resetBooking, updateBooking],
+  );
+
   return (
     <div className="min-h-screen bg-surface-100">
       <NavBar />
@@ -135,7 +161,7 @@ export default function LandingPage({ navigate }) {
           {/* Visual */}
           <div className="relative hidden md:flex justify-center">
             <div className="absolute inset-0 bg-primary-500/10 rounded-full blur-3xl" />
-            
+
             <div className="w-2/4 h-full relative">
               <img
                 src={logo}
@@ -225,44 +251,28 @@ export default function LandingPage({ navigate }) {
               <span className="text-primary-500 italic">perfect wash</span>
             </h2>
           </div>
+
+          {/* ── ERROR ──────────────────────────────────────── */}
+          {error && (
+            <ResponseCard
+              title="Error"
+              message={error}
+              type="error"
+              onRetry={fetchServices}
+            />
+          )}
           <div className="grid md:grid-cols-3 gap-6">
-            {services.map((s, i) => (
-              <div
-                key={i}
-                className={`relative bg-surface-50 border rounded-2xl p-7 flex flex-col transition-all hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,201,177,0.12)] ${i === 2 ? "border-primary-500/50 shadow-[0_0_30px_rgba(0,201,177,0.08)]" : "border-white/8 hover:border-primary-500/30"}`}
-              >
-                <div className="text-4xl mb-4">{s.icon}</div>
-                <div className="flex items-center gap-2 mb-2 justify-between">
-                  <h3 className="font-display text-xl text-surface-900">
-                    {s.name}
-                  </h3>
-                  {s.tag && (
-                    <Badge
-                      variant={i === 0 ? "info" : "primary"}
-                      className="self-start mb-4"
-                    >
-                      {s.tag}
-                    </Badge>
-                  )}
-                </div>
-                <p className="text-sm text-surface-500 mb-6">{s.desc}</p>
-                <div className="mt-auto">
-                  <div className="font-display text-3xl text-surface-900 mb-1">
-                    {s.price}{" "}
-                    <span className="text-sm font-sans text-surface-400">
-                      RWF
-                    </span>
-                  </div>
-                  <Button
-                    variant={i === 2 ? "primary" : "outline"}
-                    className="w-full mt-4"
-                    onClick={() => navigate("booking")}
-                  >
-                    Book this wash
-                  </Button>
-                </div>
-              </div>
-            ))}
+            {loading
+              ? [1, 2, 3].map((i) => <ServiceCardSkeleton key={i} />)
+              : services.map((s) => (
+                  <ServiceCard
+                    key={s._id}
+                    service={s}
+                    selected={selectedSvc}
+                    onSelect={setSelectedSvc}
+                    onBook={handleBook}
+                  />
+                ))}
           </div>
         </div>
       </section>

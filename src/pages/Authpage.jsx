@@ -893,6 +893,7 @@ export default function AuthPage({ navigate }) {
       } else navigate("/admin/overview");
     }
   }, []);
+  
 
   return (
     <div className="min-h-screen bg-surface-100 flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden">

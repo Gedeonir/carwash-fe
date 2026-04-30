@@ -28,6 +28,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { ToastProvider } from "./components/Toast";
 import { useAuth } from "./context/UseAuth";
+import WasherDashboard from "./pages/WasherDashboard";
 const Schedule = lazy(() => import("./pages/Schedule"));
 const PageLoader = lazy(() => import("./components/PageLoader"));
 
@@ -61,6 +62,15 @@ export default function App() {
                 <ProtectedRoute allowedRoles={["customer"]} path={"/auth"}>
                   <DashboardPage {...sharedProps} />
                 </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/washer/dashboard"
+              element={
+                // <ProtectedRoute allowedRoles={["washer"]} path={"/auth"}>
+                  <WasherDashboard {...sharedProps} />
+                // </ProtectedRoute>
               }
             />
             <Route
