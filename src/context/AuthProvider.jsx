@@ -112,7 +112,6 @@ export function AuthProvider({ children }) {
 
       return res.data;
     } catch (error) {
-      console.log(error.response);
       
       // Login failed — session already cleared above, nothing to loop on
       return { error: error.response?.data || "Login failed" };

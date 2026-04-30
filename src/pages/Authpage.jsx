@@ -201,8 +201,9 @@ export function LoginForm({
     const loginResponse = await login(form.email, form.password);
 
     if (loginResponse?.error) {
+      
       setErrors({
-        general: loginResponse.error?.data?.message || "Login failed",
+        general: loginResponse.error?.message|| "Login failed",
       });
       setLoading(false);
       return;
