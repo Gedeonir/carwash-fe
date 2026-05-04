@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card, Badge } from "../../components/UI";
-import { useCustomers } from "./useAdminData";
+import { useCustomers } from "./UseAdminData";
 
 const TIER_STYLE = {
   platinum: "text-info border-info/20 bg-info/10",

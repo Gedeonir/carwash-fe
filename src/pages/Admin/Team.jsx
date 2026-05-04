@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Card, Button, Badge } from "../../components/UI";
-import { useWashers, updateWasher } from "./useAdminData";
+import { useWashers, updateWasher } from "./UseAdminData";
 
 const STATUS_STYLE = {
   available: "bg-success/15 text-success",

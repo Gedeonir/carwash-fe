@@ -5,7 +5,7 @@ import {
   useWashers,
   assignWasherToBooking,
   updateBookingStatus,
-} from "./useAdminData";
+} from "./UseAdminData";
 
 const STATUS_CONFIG = {
   confirmed: { label: "Confirmed", variant: "info" },

@@ -1,5 +1,5 @@
 import { Card, ResponseCard, StatCard } from "../../components/UI";
-import { useAdminStats } from "./useAdminData";
+import { useAdminStats } from "./UseAdminData";
 
 function BarSkeleton() {
   return (
