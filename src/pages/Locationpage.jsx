@@ -82,11 +82,11 @@ export default function LocationPage({ navigate }) {
           {/* 🏠 SAVED LOCATIONS */}
           {user && !user?.isGuest && (
             <div className="mb-6">
-              <h3 className="text-sm font-medium text-surface-500 mb-3">
-                Saved locations
-              </h3>
+                <h3 className="text-sm font-medium text-surface-500 mb-3">
+                  Saved locations
+                </h3>
 
-              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3">
                 {user?.savedLocations?.map((loc) => (
                   <button
                     key={loc.id}

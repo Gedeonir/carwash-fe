@@ -14,7 +14,6 @@
   }
 
   body {
-    @apply bg-surface-900 text-white font-sans;
     font-feature-settings: "kern" 1, "liga" 1;
   }
 

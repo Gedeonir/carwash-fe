@@ -12,11 +12,17 @@ import { useAuth } from "../context/UseAuth";
 import NavBar from "../components/NavBar";
 import { ArrowLeftRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import momo from "../assets/momo.jpg";
+import airtel from "../assets/airtel.png";
+import card from "../assets/card.jpg";
+import cash from "../assets/cash.jpg";
+import { getDistance } from "../utils/getDistance";
+import api from "../utils/api";
 
 const formatBookingDate = (dateStr, time) => {
-  const currentYear = new Date().getFullYear();
+  const fullDate = `${dateStr} ${time}`;
 
-  const fullDate = `${dateStr} ${currentYear} ${time}`;
+  console.log(fullDate);
 
   return new Date(fullDate).toISOString();
 };
@@ -25,20 +31,20 @@ const PAYMENT_METHODS = [
   {
     id: "momo",
     name: "MTN Mobile Money",
-    icon: "📱",
+    icon: momo,
     desc: "Pay with your MTN MoMo",
   },
   {
     id: "airtel",
     name: "Airtel Money",
-    icon: "📲",
+    icon: airtel,
     desc: "Pay with Airtel Money",
   },
-  { id: "card", name: "Card / Bank", icon: "💳", desc: "Visa, Mastercard" },
+  { id: "card", name: "Card / Bank", icon: card, desc: "Visa, Mastercard" },
   {
     id: "cash",
     name: "Cash on arrival",
-    icon: "💵",
+    icon: cash,
     desc: "Pay when we arrive",
   },
 ];
@@ -115,21 +121,6 @@ export const WashersList = ({ onClose }) => {
 
   const [filter, setFilter] = useState("all");
 
-  function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) ** 2;
-
-    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-  }
-
   const washers = washersResponse.washers
     ?.map((w) => ({
       ...w,
@@ -195,7 +186,10 @@ export const WashersList = ({ onClose }) => {
                 e.stopPropagation();
                 if (booking.washer?.id === w.id)
                   updateBooking({ washer: null });
-                else updateBooking({ washer: w });
+                else {
+                  onClose();
+                  updateBooking({ washer: w });
+                }
               }}
             >
               <div className="flex gap-3 items-center">
@@ -257,45 +251,88 @@ export default function ConfirmPage({ navigate, bookingData }) {
         price: a.price,
       })),
 
-      scheduledDate: formatBookingDate(booking.date, booking.time),// make sure it's ISO or valid date
-      scheduledTime: booking.time,
-
+      scheduledDate: formatBookingDate(
+        booking.date,
+        booking.time || booking.customTime,
+      ), // make sure it's ISO or valid date
+      scheduledTime: booking.time || booking.customTime,
       location: booking.location, // already object? good
 
       paymentMethod: booking.paymentMethod || "cash",
+      washer: booking.washer?.id, // just send washer ID
 
       tip: booking.tip || 0,
     };
   };
 
+
   const handleConfirm = async () => {
     setLoading(true);
-    const payload = buildBookingPayload(booking);
+    setErrors(null);
 
-    const book = await createBooking(payload);
-    if (book.error) {
-      console.log(book.error);
+    try {
+      const payload = buildBookingPayload(booking);
+
+      const book = await createBooking(payload);      
+
+      if (book.error) {
+        setErrors({
+          general: book.error?.message || "Booking a wash failed",
+        });
+        return;
+      }
+
+      setConfirming(true);
+
+      setTimeout(() => {
+        navigate("/booking/tracking/" + book?.data?.booking?.id);
+      }, 2000);
+    } catch (error) {
+      console.error(error);
+
       setErrors({
-        general: book.error?.message || "Booking a wash failed",
+        general: error?.message || "An unexpected error occurred",
       });
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setConfirming(true);
-
-    setTimeout(() => navigate("/booking/tracking", {}), 2000);
   };
 
   const rows = [
     ["Service", booking.service?.name || "N/A"],
     ["Date", booking.date || "N/A"],
-    ["Time", booking.time || "N/A"],
+    ["Time", booking.time || booking.customTime || "N/A"],
     ["Location", booking.location.address || "N/A"],
     ["Duration", booking.service?.durationMinutes + "min" || "N/A"],
   ];
 
   const total = booking.total;
+  const [loadingAssign, setLoadingAssign] = useState(false);
+
+  useEffect(() => {
+    async function handleAutoAssign() {
+      setLoadingAssign(true);
+      try {
+        const res = await api.post("/users/washer/suggestion", {
+          date: booking.date,
+          time: booking.time,
+          location: booking.location,
+        });
+        updateBooking({ washer: res.data?.washers[0] });
+      } catch (err) {
+        console.log(err);
+        return;
+      }
+      finally {
+        setLoadingAssign(false);
+      }
+    }
+
+    handleAutoAssign();
+  }, []);
+
+
+  console.log(booking);
   
 
   return (
@@ -324,8 +361,8 @@ export default function ConfirmPage({ navigate, bookingData }) {
             {/* Success animation area */}
             {confirming && (
               <div className="fixed inset-0 bg-surface-900 bg-opacity-10 z-50 flex flex-col items-center justify-center">
-                <div className="bg-surface-50 w-full md:w-1/2 px-4 py-8 flex flex-col items-center justify-content rounded-lg">
-                  <div className="w-16 h-16 rounded-full bg-primary-500 flex items-center justify-center mb-6 animate-pulse">
+                <div className="bg-surface-50 w-full md:w-1/5 px-4 py-2 flex flex-col items-center justify-content rounded-lg">
+                  <div className="w-16 h-16 rounded-full bg-primary-500 flex items-center justify-center mb-6">
                     <div className="w-8 h-8 rounded-full bg-primary-500 flex items-center justify-center">
                       <svg
                         width="36"
@@ -340,12 +377,25 @@ export default function ConfirmPage({ navigate, bookingData }) {
                       </svg>
                     </div>
                   </div>
-                  <h2 className="font-display text-3xl text-surface-900 mb-2">
+                  <h2 className="font-display text-lg text-surface-900 mb-2">
                     Booking Confirmed!
                   </h2>
-                  <p className="text-surface-500">
-                    Your wash is scheduled. Redirecting...
+                  <p className="text-surface-500 text-sm">
+                    Your wash is scheduled.
                   </p>
+
+                  <div className="flex flex-col gap-4 my-4">
+                    <Button size="sm" onClick={() => navigate("our-services")}>
+                      View Bookings →
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setConfirming(false)}
+                    >
+                      Close
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
@@ -420,7 +470,7 @@ export default function ConfirmPage({ navigate, bookingData }) {
                 </div>
                 <button
                   onClick={() => setShowWashers(!showWashers)}
-                  className="w-9 h-9 flex items-center justify-center rounded-full bg-surface-700 hover:bg-surface-600 transition-colors"
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-surface-200 hover:bg-surface-600 transition-colors"
                 >
                   <ArrowLeftRight />
                 </button>
@@ -447,7 +497,12 @@ export default function ConfirmPage({ navigate, bookingData }) {
                     onClick={() => updateBooking({ payment: m })}
                     className={`flex items-center gap-4 p-4 rounded-xl border text-left transition-all ${payment?.id === m.id ? "border-primary-500 bg-primary-50" : "border-white/8 bg-surface-50 hover:border-white/15"}`}
                   >
-                    <span className="text-2xl">{m.icon}</span>
+                    <div className="w-8 h-8">
+                      <img
+                        src={m.icon}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     <div className="flex-1">
                       <div className="text-sm font-medium text-surface-900">
                         {m.name}
@@ -475,6 +530,13 @@ export default function ConfirmPage({ navigate, bookingData }) {
                 </div>
               ))}
             </div>
+            {error && (
+              <ResponseCard
+                type="error"
+                title="Booking failed"
+                message={error.general}
+              />
+            )}
           </div>
         ) : (
           <WashersList onClose={() => setShowWashers(!showWashers)} />

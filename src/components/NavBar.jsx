@@ -17,12 +17,10 @@ const NavBar = () => {
     ["Get in Touch", "/contact"],
   ];
 
-  const {user} = useAuth();
+  const { user } = useAuth();
 
   const [notifCount] = useState(2);
   const resetBooking = useBookingStore((state) => state.resetBooking);
-  
-  
 
   return (
     <nav className="fixed top-0 inset-x-0 z-50 bg-surface-50 backdrop-blur-md border-b border-white/6">
@@ -51,18 +49,6 @@ const NavBar = () => {
               {l}
             </a>
           ))}
-          {user && (
-            <a
-              href={"/dashboard"}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate("/dashboard");
-              }}
-              className={`text-sm hover:text-primary-500 transition-colors ${location.pathname === "/dashboard" ? "text-primary-500" : "text-surface-400"}`}
-            >
-              My Dashboard
-            </a>
-          )}
         </div>
         <div className="hidden md:flex ml-auto gap-3">
           {!location.pathname.includes("booking") && (
@@ -77,6 +63,15 @@ const NavBar = () => {
           )}
           {user ? (
             <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  navigate("/auth", { state: { screen: "login" } })
+                }
+              >
+                My Dashboard
+              </Button>
               {/* Notifications */}
               <button
                 onClick={() => navigate("/notifications")}

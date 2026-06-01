@@ -136,8 +136,8 @@ export default function LandingPage({ navigate }) {
               </Button>
               <Button
                 variant="ghost"
-                size="lg"
-                onClick={() => navigate("services")}
+                size="sm"
+                onClick={() => navigate("our-services")}
               >
                 View Services →
               </Button>
@@ -323,7 +323,7 @@ export default function LandingPage({ navigate }) {
           <p className="text-surface-400 mb-8">
             Book in under 2 minutes. We handle the rest.
           </p>
-          <Button size="lg" onClick={() => navigate("booking")}>
+          <Button size="sm" onClick={() => navigate("booking")}>
             Book Your Wash →
           </Button>
         </div>

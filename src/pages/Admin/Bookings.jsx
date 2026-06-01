@@ -6,6 +6,7 @@ import {
   assignWasherToBooking,
   updateBookingStatus,
 } from "./UseAdminData";
+import { data } from "react-router-dom";
 
 const STATUS_CONFIG = {
   confirmed: { label: "Confirmed", variant: "info" },
@@ -105,6 +106,9 @@ export default function Bookings() {
     "completed",
     "cancelled",
   ];  
+
+console.log(bookRes);
+  
 
   return (
     <div>
@@ -253,7 +257,7 @@ export default function Bookings() {
                         </div>
                       </td>
                       <td className="py-3.5 pr-4 text-sm text-surface-500 max-w-[120px] truncate">
-                        {b.location?.address?.split(",")[0]}
+                        {b.location?.address}
                       </td>
                       <td className="py-3.5 pr-4 text-sm text-surface-600 whitespace-nowrap">
                         {b.washer?.name || (
@@ -286,7 +290,7 @@ export default function Bookings() {
                               </option>
                               {(washers || []).map((w) => (
                                 <option key={w._id} value={w._id}>
-                                  {w.name} ({w.zone})
+                                  {w.name} ({w.zone?.address || "—"})
                                 </option>
                               ))}
                             </select>
@@ -390,7 +394,7 @@ export default function Bookings() {
                   </p>
                   <p className="col-span-2">
                     <span className="font-medium">Location:</span>{" "}
-                    {b.location?.address?.split(",")[0]}
+                    {b.location?.address}
                   </p>
                 </div>
                 <div className="flex items-center justify-between">

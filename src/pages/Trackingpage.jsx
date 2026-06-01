@@ -1,6 +1,9 @@
-import { useState, useEffect } from "react";
-import { Button, Card, Badge, TopBar } from "../components/UI";
+import { useState, useEffect, use } from "react";
+import { Button, Card, Badge, TopBar, ResponseCard } from "../components/UI";
 import { BookOpen, ArrowLeft, Home, Search } from "lucide-react";
+import NavBar from "../components/NavBar";
+import { useAuth } from "../context/UseAuth";
+import { useParams } from "react-router-dom";
 
 const STAGES = [
   {
@@ -40,9 +43,127 @@ const STAGES = [
   },
 ];
 
+const Skeleton = ({ className }) => (
+  <div className={`animate-pulse bg-surface-200 rounded ${className}`} />
+);
+
+function TrackWashSkeleton() {
+  return (
+    <div className="mt-20 bg-surface-50 border border-white/8 rounded-xl p-4 max-w-2xl mx-auto">
+      {/* Top bar */}
+      <div className="flex items-center justify-between mb-6">
+        <Skeleton className="h-5 w-40" />
+        <Skeleton className="h-6 w-16 rounded-full" />
+      </div>
+
+      <div className="w-full mx-auto px-4 py-6">
+        {/* Hero card */}
+        <div className="bg-surface-100 border border-primary-500/20 rounded-3xl p-6 mb-6">
+          <Skeleton className="h-5 w-28 mb-3 rounded-full" />
+          <Skeleton className="h-7 w-2/3 mb-2" />
+          <Skeleton className="h-4 w-1/2 mb-6" />
+
+          <div className="bg-surface-800/50 rounded-2xl p-4 flex justify-between">
+            <div>
+              <Skeleton className="h-3 w-24 mb-2" />
+              <Skeleton className="h-6 w-12" />
+            </div>
+            <div className="text-right">
+              <Skeleton className="h-3 w-16 mb-2 ml-auto" />
+              <Skeleton className="h-4 w-20 mb-1 ml-auto" />
+              <Skeleton className="h-3 w-10 ml-auto" />
+            </div>
+          </div>
+        </div>
+
+        {/* Map */}
+        <div className="rounded-2xl border border-white/8 h-44 mb-6 p-4">
+          <Skeleton className="w-full h-full rounded-xl" />
+        </div>
+
+        {/* Timeline */}
+        <div className="bg-surface-100 rounded-2xl p-5 mb-5 space-y-4">
+          <Skeleton className="h-5 w-24 mb-2" />
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex gap-4 items-start">
+              <Skeleton className="w-8 h-8 rounded-full" />
+              <div className="flex-1">
+                <Skeleton className="h-4 w-40 mb-2" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Washer contact */}
+        <div className="bg-surface-100 rounded-2xl p-4 mb-5 flex items-center gap-4">
+          <Skeleton className="w-12 h-12 rounded-full" />
+          <div className="flex-1">
+            <Skeleton className="h-4 w-32 mb-2" />
+            <Skeleton className="h-3 w-40" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="w-10 h-10 rounded-full" />
+            <Skeleton className="w-10 h-10 rounded-full" />
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className="text-center">
+          <Skeleton className="h-3 w-28 mx-auto mb-3" />
+          <div className="flex gap-2">
+            <Skeleton className="flex-1 h-8 rounded-lg" />
+            <Skeleton className="flex-1 h-8 rounded-lg" />
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="fixed bottom-0 inset-x-0 bg-surface-50 border-t border-white/8 p-4">
+        <div className="max-w-2xl mx-auto flex gap-3">
+          <Skeleton className="flex-1 h-10 rounded-lg" />
+          <Skeleton className="flex-1 h-10 rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function TrackingPage({ navigate, bookingData }) {
   const [currentStage, setCurrentStage] = useState(1);
   const [eta, setEta] = useState(18);
+  const [bookingRes, setBookingRes] = useState({
+    success: null,
+    error: null,
+    loading: false,
+    data: null,
+  });
+
+  const { getBooking } = useAuth();
+  const params = useParams();
+    const handleBooking = async () => {
+      setBookingRes((prev) => ({ ...prev, loading: true }));
+      try {
+        const res = await getBooking(params.id);
+
+        if (res?.error) throw new Error(res.error?.message);
+        
+        setBookingRes({
+          success: true,
+          error: null,
+          loading: false,
+          data: res.data?.booking,
+        });
+      } catch (err) {
+        setBookingRes({ success: false, error: err.message, data: null });
+      } finally {
+        setBookingRes((prev) => ({ ...prev, loading: false }));
+      }
+    };
+  useEffect(() => {
+
+    if (params?.id) handleBooking();
+  }, []);
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -53,87 +174,101 @@ export default function TrackingPage({ navigate, bookingData }) {
 
   const stage = STAGES[currentStage];
 
+  console.log(bookingRes);
+
   return (
     <div className="min-h-screen bg-surface-100 pb-28">
-      <TopBar
-        title="Track Your Wash"
-        rightAction={
-          <Badge variant="success">
-            <span className="w-1.5 h-1.5 rounded-full bg-success inline-block mr-1 animate-pulse" />
-            Live
-          </Badge>
-        }
-      />
+      <NavBar />
 
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        {/* Status hero card */}
-        <div className="relative bg-gradient-to-br from-surface-800 to-surface-900 border border-primary-500/30 rounded-3xl p-6 mb-6 overflow-hidden">
-          <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary-500/10 rounded-full blur-2xl" />
-          <div className="flex items-start justify-between mb-4 relative z-10">
-            <div>
-              <Badge variant="primary" className="mb-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary-500 inline-block mr-1 animate-pulse" />
-                {currentStage < 4 ? "In Progress" : "Completed"}
+      {bookingRes.loading ? (
+        <TrackWashSkeleton />
+      ) : bookingRes.success && bookingRes.data ? (
+        <div className="mt-20 bg-surface-50 border border-white/8 rounded-xl p-4 max-w-2xl mx-auto">
+          <TopBar
+            title="Track Your Wash"
+            rightAction={
+              <Badge variant="success">
+                <span className="w-1.5 h-1.5 rounded-full bg-success inline-block mr-1 animate-pulse" />
+                Live
               </Badge>
-              <h2 className="font-display text-2xl text-white mb-1">
-                {stage.label}
-              </h2>
-              <p className="text-surface-300 text-sm">{stage.desc}</p>
-            </div>
-            <div className="text-4xl">{stage.icon}</div>
-          </div>
-          {currentStage < 4 && (
-            <div className="relative z-10 bg-surface-900/40 rounded-2xl p-4 flex items-center justify-between">
-              <div>
-                <div className="text-xs text-surface-400 mb-0.5">
-                  Estimated arrival
-                </div>
-                <div className="font-display text-2xl text-white">
-                  {eta} min
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-surface-400 mb-0.5">Washer</div>
-                <div className="text-sm font-medium text-white">Jean N.</div>
-                <div className="text-xs text-primary-400">⭐ 4.9</div>
-              </div>
-            </div>
-          )}
-        </div>
+            }
+          />
 
-        {/* Map placeholder */}
-        <div className="rounded-2xl overflow-hidden border border-white/8 relative h-44 bg-surface-50 mb-6">
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(0,201,177,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(0,201,177,0.04)_1px,transparent_1px)] bg-[size:30px_30px]" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            {/* Moving dot animation */}
-            <div className="relative w-48 h-24">
-              <div
-                className="absolute left-0 top-1/2 w-3 h-3 rounded-full bg-primary-500 -translate-y-1/2"
-                style={{ animation: "moveRight 3s ease-in-out infinite" }}
-              />
-              <div className="absolute inset-0 flex items-center">
-                <div className="flex-1 h-px border-t-2 border-dashed border-primary-500" />
+          <div className="w-full mx-auto px-4 py-6">
+            {/* Status hero card */}
+            <div className="relative bg-gradient-to-br from-surface-800 to-surface-900 border border-primary-500/30 rounded-3xl p-6 mb-6 overflow-hidden">
+              <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary-500/10 rounded-full blur-2xl" />
+              <div className="flex items-start justify-between mb-4 relative z-10">
+                <div>
+                  <Badge variant="primary" className="mb-3">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary-500 inline-block mr-1 animate-pulse" />
+                    {currentStage < 4 ? "In Progress" : "Completed"}
+                  </Badge>
+                  <h2 className="font-display text-2xl text-white mb-1">
+                    {stage.label}
+                  </h2>
+                  <p className="text-surface-300 text-sm">{stage.desc}</p>
+                </div>
+                <div className="text-4xl">{stage.icon}</div>
               </div>
-              <div className="absolute right-0 top-1/2 -translate-y-1/2">
-                <div className="text-2xl">🏠</div>
-              </div>
+              {currentStage < 4 && (
+                <div className="relative z-10 bg-surface-900/40 rounded-2xl p-4 flex items-center justify-between">
+                  <div>
+                    <div className="text-xs text-surface-400 mb-0.5">
+                      Estimated arrival
+                    </div>
+                    <div className="font-display text-2xl text-white">
+                      {eta} min
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-surface-400 mb-0.5">
+                      Washer
+                    </div>
+                    <div className="text-sm font-medium text-white">
+                      Jean N.
+                    </div>
+                    <div className="text-xs text-primary-400">⭐ 4.9</div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-          <style>{`@keyframes moveRight { 0%,100%{left:0} 50%{left:calc(100% - 12px)} }`}</style>
-        </div>
 
-        {/* Timeline */}
-        <Card className="p-5 mb-5">
-          <h3 className="font-display text-base text-white mb-4">Progress</h3>
-          <div className="space-y-0">
-            {STAGES.map((s, i) => {
-              const done = i < currentStage;
-              const active = i === currentStage;
-              return (
-                <div key={s.id} className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs border-2 transition-all flex-shrink-0
+            {/* Map placeholder */}
+            <div className="rounded-2xl overflow-hidden border border-white/8 relative h-44 bg-surface-50 mb-6">
+              <div className="absolute inset-0 bg-[linear-gradient(rgba(0,201,177,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(0,201,177,0.04)_1px,transparent_1px)] bg-[size:30px_30px]" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                {/* Moving dot animation */}
+                <div className="relative w-48 h-24">
+                  <div
+                    className="absolute left-0 top-1/2 w-3 h-3 rounded-full bg-primary-500 -translate-y-1/2"
+                    style={{ animation: "moveRight 3s ease-in-out infinite" }}
+                  />
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="flex-1 h-px border-t-2 border-dashed border-primary-500" />
+                  </div>
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2">
+                    <div className="text-2xl">🏠</div>
+                  </div>
+                </div>
+              </div>
+              <style>{`@keyframes moveRight { 0%,100%{left:0} 50%{left:calc(100% - 12px)} }`}</style>
+            </div>
+
+            {/* Timeline */}
+            <Card className="p-5 mb-5">
+              <h3 className="font-display text-base text-white mb-4">
+                Progress
+              </h3>
+              <div className="space-y-0">
+                {STAGES.map((s, i) => {
+                  const done = i < currentStage;
+                  const active = i === currentStage;
+                  return (
+                    <div key={s.id} className="flex gap-4">
+                      <div className="flex flex-col items-center">
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs border-2 transition-all flex-shrink-0
                       ${
                         done
                           ? "bg-primary-500 border-primary-500 text-surface-900"
@@ -141,153 +276,150 @@ export default function TrackingPage({ navigate, bookingData }) {
                             ? "bg-surface-700 border-primary-500 text-primary-400 shadow-[0_0_12px_rgba(0,201,177,0.3)]"
                             : "bg-surface-800 border-white/10 text-surface-500"
                       }`}
-                    >
-                      {done ? (
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="3"
-                          strokeLinecap="round"
                         >
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      ) : active ? (
-                        <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
-                      ) : (
-                        <span className="w-2 h-2 rounded-full bg-surface-600" />
-                      )}
-                    </div>
-                    {i < STAGES.length - 1 && (
-                      <div
-                        className={`w-0.5 flex-1 my-1 ${done ? "bg-primary-500" : "bg-white/8"}`}
-                        style={{ minHeight: "24px" }}
-                      />
-                    )}
-                  </div>
-                  <div
-                    className={`pb-4 flex-1 ${i === STAGES.length - 1 ? "pb-0" : ""}`}
-                  >
-                    <div
-                      className={`text-sm font-medium ${active ? "text-white" : done ? "text-surface-300" : "text-surface-500"}`}
-                    >
-                      {s.label}
-                    </div>
-                    {(done || active) && (
-                      <div className="text-xs text-surface-500 mt-0.5">
-                        {s.time}
+                          {done ? (
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          ) : active ? (
+                            <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+                          ) : (
+                            <span className="w-2 h-2 rounded-full bg-surface-600" />
+                          )}
+                        </div>
+                        {i < STAGES.length - 1 && (
+                          <div
+                            className={`w-0.5 flex-1 my-1 ${done ? "bg-primary-500" : "bg-white/8"}`}
+                            style={{ minHeight: "24px" }}
+                          />
+                        )}
                       </div>
-                    )}
+                      <div
+                        className={`pb-4 flex-1 ${i === STAGES.length - 1 ? "pb-0" : ""}`}
+                      >
+                        <div
+                          className={`text-sm font-medium ${active ? "text-white" : done ? "text-surface-300" : "text-surface-500"}`}
+                        >
+                          {s.label}
+                        </div>
+                        {(done || active) && (
+                          <div className="text-xs text-surface-500 mt-0.5">
+                            {s.time}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+
+            {/* Washer contact */}
+            <Card className="p-4 mb-5">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center font-display text-white text-lg flex-shrink-0">
+                  JN
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-surface-900 text-sm">
+                    Jean Nkurunziza
+                  </div>
+                  <div className="text-xs text-surface-500">
+                    Professional Detailer · ⭐ 4.9 (312 reviews)
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </Card>
-
-        {/* Washer contact */}
-        <Card className="p-4 mb-5">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-primary-500 flex items-center justify-center font-display text-white text-lg flex-shrink-0">
-              JN
-            </div>
-            <div className="flex-1">
-              <div className="font-medium text-surface-900 text-sm">
-                Jean Nkurunziza
+                <div className="flex gap-2">
+                  <button className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-700 hover:bg-primary-500/20 hover:text-primary-400 transition-all text-surface-300">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    >
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.35 2 2 0 0 1 3.6 1.17h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6 6l.73-.73a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                    </svg>
+                  </button>
+                  <button className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-700 hover:bg-primary-500/20 hover:text-primary-400 transition-all text-surface-300">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    >
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                  </button>
+                </div>
               </div>
-              <div className="text-xs text-surface-500">
-                Professional Detailer · ⭐ 4.9 (312 reviews)
+            </Card>
+
+            {/* Debug controls */}
+            <div className="text-center">
+              <p className="text-xs text-surface-600 mb-2">Preview controls</p>
+              <div className="flex justify-between gap-2">
+                <button
+                  onClick={() => setCurrentStage((s) => Math.max(0, s - 1))}
+                  className="text-xs px-3 py-1.5 bg-surface-800 text-surface-400 rounded-lg hover:bg-surface-700"
+                >
+                  ← Back
+                </button>
+                <button
+                  onClick={() =>
+                    setCurrentStage((s) => Math.min(STAGES.length - 1, s + 1))
+                  }
+                  className="text-xs px-3 py-1.5 bg-surface-800 text-surface-400 rounded-lg hover:bg-surface-700"
+                >
+                  Next stage →
+                </button>
               </div>
             </div>
-            <div className="flex gap-2">
-              <button className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-700 hover:bg-primary-500/20 hover:text-primary-400 transition-all text-surface-300">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                >
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.35 2 2 0 0 1 3.6 1.17h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.73a16 16 0 0 0 6 6l.73-.73a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-                </svg>
-              </button>
-              <button className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-700 hover:bg-primary-500/20 hover:text-primary-400 transition-all text-surface-300">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                >
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-              </button>
-            </div>
           </div>
-        </Card>
 
-        {/* Debug controls */}
-        <div className="text-center">
-          <p className="text-xs text-surface-600 mb-2">Preview controls</p>
-          <div className="flex justify-between gap-2">
-            <button
-              onClick={() => setCurrentStage((s) => Math.max(0, s - 1))}
-              className="text-xs px-3 py-1.5 bg-surface-800 text-surface-400 rounded-lg hover:bg-surface-700"
-            >
-              ← Back
-            </button>
-            <button
-              onClick={() =>
-                setCurrentStage((s) => Math.min(STAGES.length - 1, s + 1))
-              }
-              className="text-xs px-3 py-1.5 bg-surface-800 text-surface-400 rounded-lg hover:bg-surface-700"
-            >
-              Next stage →
-            </button>
+          <div className="fixed bottom-0 inset-x-0 bg-surface-50 backdrop-blur-md border-t border-white/8 p-4 z-30">
+            <div className="max-w-2xl mx-auto flex gap-3">
+              <Button
+                variant="ghost"
+                className="flex-1"
+                onClick={() => navigate("booking")}
+              >
+                Reschedule
+              </Button>
+              {currentStage >= 4 ? (
+                <Button className="flex-1" onClick={() => navigate("review")}>
+                  Rate & Review →
+                </Button>
+              ) : (
+                <Button variant="outline" className="flex-1">
+                  Cancel booking
+                </Button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-        <button
-          onClick={() => navigate("/")}
-          className="flex items-center gap-2 px-5 py-3 rounded-lg
-                bg-primary-500 hover:bg-primary-600 active:bg-primary-700
-                text-white text-sm font-semibold
-                shadow-md hover:shadow-lg transition-all duration-150
-                w-full sm:w-auto justify-center"
-        >
-          <Home size={15} />
-          Back to home
-        </button>
-      </div>
-
-      <div className="fixed bottom-0 inset-x-0 bg-surface-50 backdrop-blur-md border-t border-white/8 p-4 z-30">
-        <div className="max-w-2xl mx-auto flex gap-3">
-          <Button
-            variant="ghost"
-            className="flex-1"
-            onClick={() => navigate("booking")}
-          >
-            Reschedule
-          </Button>
-          {currentStage >= 4 ? (
-            <Button className="flex-1" onClick={() => navigate("review")}>
-              Rate & Review →
-            </Button>
-          ) : (
-            <Button variant="outline" className="flex-1">
-              Cancel booking
-            </Button>
-          )}
+      ) : (
+        <div className="mt-20 bg-surface-50 border border-white/8 rounded-xl p-4 max-w-2xl mx-auto">
+          <ResponseCard
+            type="error"
+            message={bookingRes.error}
+            title={"Error"}
+            onRetry={handleBooking}
+          />
         </div>
-      </div>
+      )}
     </div>
   );
 }

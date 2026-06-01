@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Badge, Card, Button } from "../../components/UI";
 import { Menu, Bell } from "lucide-react";
 import logo from "../../assets/car_wash_logo.png";
+import { useAuth } from "../../context/UseAuth";
 
 export const NavBar = () => {
   const [open, setOpen] = useState(false);
@@ -17,9 +18,8 @@ export const NavBar = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const userName = "Amira";
-  const firstName = userName.split(" ")[0].split("@")[0];
   const [notifCount] = useState(2);
+  const {user }= useAuth();
   return (
     <div className="sticky top-0 z-40 bg-surface-50 backdrop-blur-md border-b border-white/6">
       <div className="max-w-7xl mx-auto flex items-center px-4 md:px-6 py-3 md:py-4 gap-3">
@@ -40,7 +40,7 @@ export const NavBar = () => {
         </div>
 
         {/* Desktop Tabs */}
-        <div className="hidden md:flex gap-1 ml-6 bg-surface-800/50 rounded-xl p-1">
+        <div className="hidden md:flex gap-1 ml-6 rounded-xl p-1">
           {TABS.map((t) => (
             <button
               key={t.id}
@@ -59,7 +59,7 @@ export const NavBar = () => {
         {/* Avatar */}
         <div className="ml-auto flex items-center gap-3">
           <button
-            onClick={() => navigate("/notifications")}
+            onClick={() => navigate("/admin/notifications")}
             className="relative w-9 h-9 flex items-center justify-center rounded-full border border-white/8 hover:border-primary-500/40 transition-all"
           >
             <Bell className="w-5 h-5 text-surface-400" />
@@ -72,7 +72,7 @@ export const NavBar = () => {
             onClick={() => navigate("/admin/profile")}
             className="w-9 h-9 rounded-full bg-primary-500 border border-primary-500/30 flex items-center justify-center font-display text-primary-400 text-sm hover:bg-primary-500/30 transition-all"
           >
-            {firstName[0].toUpperCase()}
+            {user?.initials}
           </button>
 
           {/* Hamburger (mobile only) */}

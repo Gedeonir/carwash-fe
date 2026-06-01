@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, Badge, TopBar } from "../components/UI";
+import { Card, Badge, TopBar } from "./UI";
 
 const NOTIFICATIONS = [
   {
@@ -60,7 +60,7 @@ const TYPE_COLORS = {
   promo: "success",
 };
 
-export default function NotificationsPage({ navigate }) {
+export default function Notifications({ navigate }) {
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
   const [filter, setFilter] = useState("all");
 
@@ -82,10 +82,20 @@ export default function NotificationsPage({ navigate }) {
       : notifications.filter((n) => n.type === filter);
 
   return (
-    <div className="min-h-screen bg-surface-100 pb-8">
-      <TopBar
-        title="Notifications"
-        onBack={() => navigate(-1)}
+    <div className="bg-surface-100">
+      <div className="max-w-2xl mx-auto px-4 py-4 bg-surface-50">
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <h1 className="text-xl font-display text-surface-900">Notifications</h1>
+
+          {unreadCount > 0 ? (
+            <button
+              onClick={markAllRead}
+              className="text-xs text-primary-600 hover:text-primary-700 transition-colors font-medium">
+              Mark all read
+            </button>
+          ) : null}
+        </div>
+        {/* title="Notifications"
         rightAction={
           unreadCount > 0 ? (
             <button
@@ -95,9 +105,7 @@ export default function NotificationsPage({ navigate }) {
             </button>
           ) : null
         }
-      />
-
-      <div className="max-w-2xl mx-auto px-4 py-4">
+      /> */}
         {/* Unread badge */}
         {unreadCount > 0 && (
           <div className="flex items-center gap-2 mb-4">

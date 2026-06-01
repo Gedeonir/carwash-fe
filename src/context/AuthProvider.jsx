@@ -82,9 +82,14 @@ export function AuthProvider({ children }) {
     loadUser();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const signUp = useCallback(async (name, email, phone,password ) => {
+  const signUp = useCallback(async (name, email, phone, password) => {
     try {
-      const res = await api.post("/auth/register", { name,email, password,phone });
+      const res = await api.post("/auth/register", {
+        name,
+        email,
+        password,
+        phone,
+      });
       return res.data;
     } catch (error) {
       return { error: error.response?.data || "Registering user failed" };
@@ -112,7 +117,6 @@ export function AuthProvider({ children }) {
 
       return res.data;
     } catch (error) {
-      
       // Login failed — session already cleared above, nothing to loop on
       return { error: error.response?.data || "Login failed" };
     } finally {
@@ -207,6 +211,17 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const getBooking = useCallback(async (id) => {
+    try {
+      const res = await api.get(`/bookings/${id}`);
+      return res.data;
+    } catch (err) {
+      return {
+        error: err.response?.data || "Failed to fetch booking",
+      };
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -221,6 +236,7 @@ export function AuthProvider({ children }) {
         changePassword,
         fetchHistory,
         createBooking,
+        getBooking,
 
         getServices,
 

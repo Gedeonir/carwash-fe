@@ -123,7 +123,7 @@ export function Badge({ children, variant = "primary" }) {
 // ── TopBar ───────────────────────────────────────────────
 export function TopBar({ title, onBack, rightAction }) {
   return (
-    <div className="sticky top-0 z-40 bg-surface-50 backdrop-blur-md border-b border-white/6">
+    <div className="sticky top-0 z-40 bg-surface-50 backdrop-blur-md border-b border-white/6 px-4 mb-4">
       <div className="mx-auto flex items-center gap-4 py-4">
         {onBack && (
           <button
