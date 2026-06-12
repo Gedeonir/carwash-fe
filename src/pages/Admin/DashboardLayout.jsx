@@ -4,12 +4,14 @@ import { Badge, Card, Button } from "../../components/UI";
 import { Menu, Bell } from "lucide-react";
 import logo from "../../assets/car_wash_logo.png";
 import { useAuth } from "../../context/UseAuth";
+import Footer from "../../components/Footer";
 
 export const NavBar = () => {
   const [open, setOpen] = useState(false);
 
   const TABS = [
     { id: "overview", label: "Overview", path: "/admin/overview" },
+    { id: "services", label: "Services", path: "/admin/services" },
     { id: "bookings", label: "Bookings", path: "/admin/bookings" },
     { id: "customers", label: "Customers", path: "/admin/customers" },
     { id: "team", label: "Team", path: "/admin/team" },
@@ -126,9 +128,10 @@ const DashboardLayout = () => {
     <div className="min-h-screen flex flex-col bg-surface-100">
       <NavBar/>
       {/* CONTENT */}
-      <main className="w-full mx-auto px-4 md:px-6 py-6 md:py-8">
+      <main className="w-full mx-auto px-4 md:px-6 py-6 md:py-8 min-h-screen">
         <Outlet />
       </main>
+      <Footer/>
     </div>
   );
 };

@@ -24,6 +24,7 @@ const Customers = lazy(() => import("./pages/Admin/Customers"));
 const Team = lazy(() => import("./pages/Admin/Team"));
 const Analytics = lazy(() => import("./pages/Admin/Analytics"));
 const AddTeamMember = lazy(() => import("./pages/Admin/AddTeamMember"));
+const Services = lazy(() => import("./pages/Admin/Services"));
 
 const NotFound = lazy(() => import("./pages/NotFound"));
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -174,6 +175,7 @@ export default function App() {
             <Route path="team" element={<Team {...sharedProps} />} />
             <Route path="analytics" element={<Analytics {...sharedProps} />} />
             <Route path="profile" element={<ProfilePage {...sharedProps} />} />
+            <Route path="services" element={<Services {...sharedProps} />} />
 
             <Route
               path="team/new"
