@@ -354,17 +354,27 @@ export default function ServicesPage({ navigate }) {
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {loading
-              ? [1, 2, 3].map((i) => <ServiceCardSkeleton key={i} />)
-              : services.map((s) => (
-                  <ServiceCard
-                    key={s._id}
-                    service={s}
-                    selected={selectedSvc}
-                    onSelect={setSelectedSvc}
-                    onBook={handleBook}
-                  />
-                ))}
+            {loading ? (
+              [1, 2, 3].map((i) => <ServiceCardSkeleton key={i} />)
+            ) : services.length === 0 ? (
+              <div className="col-span-full">
+                <ResponseCard
+                  title="No Services"
+                  message="No service packages are currently available. Please check back later."
+                  type="info"
+                />
+              </div>
+            ) : (
+              services.map((s) => (
+                <ServiceCard
+                  key={s._id}
+                  service={s}
+                  selected={selectedSvc}
+                  onSelect={setSelectedSvc}
+                  onBook={handleBook}
+                />
+              ))
+            )}
           </div>
         </section>
 

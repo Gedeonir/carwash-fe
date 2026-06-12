@@ -13,6 +13,8 @@ const ProfilePage = lazy(() => import("./pages/Profilepage"));
 const NotificationsPage = lazy(() => import("./components/Notifications"));
 const ServicesPage = lazy(() => import("./pages/Servicespage"));
 const ContactPage = lazy(() => import("./pages/ContactUs"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
+const ResendVerificationEmail = lazy(() => import("./pages/ResendVerificationEmail"));
 
 // Admin
 const DashboardLayout = lazy(() => import("./pages/Admin/DashboardLayout"));
@@ -57,6 +59,8 @@ export default function App() {
             element={<ServicesPage {...sharedProps} />}
           />
           <Route path="/auth" element={<AuthPage {...sharedProps} />} />
+          <Route path="/auth/verify-email/:token" element={<VerifyEmail />} />
+          <Route path="/auth/send-verification-email" element={<ResendVerificationEmail />} />
           <Route
             path="/dashboard"
             element={

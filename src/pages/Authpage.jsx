@@ -3,9 +3,14 @@ import { Button, Input, Card, ResponseCard } from "../components/UI";
 import NavBar from "../components/NavBar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import { getPasswordStrength, isValidEmail, reg, validate } from "../utils/validate";
+import {
+  getPasswordStrength,
+  isValidEmail,
+  reg,
+  validate,
+} from "../utils/validate";
 import { useAuth } from "../context/UseAuth";
-
+import SuccessDialogBox from "../components/SuccessDialogBox";
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" className="flex-shrink-0">
@@ -201,9 +206,8 @@ export function LoginForm({
     const loginResponse = await login(form.email, form.password);
 
     if (loginResponse?.error) {
-      
       setErrors({
-        general: loginResponse.error?.message|| "Login failed",
+        general: loginResponse.error?.message || "Login failed",
       });
       setLoading(false);
       return;
@@ -241,15 +245,6 @@ export function LoginForm({
       </h2>
       <p className="text-sm text-surface-500 mb-6">Sign in to your account</p>
 
-      {/* General error */}
-      {errors.general && (
-        <div className="mb-5 px-4 py-3 rounded-lg bg-error bg-opacity-10 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-          <p className="text-error dark:text-red-400 text-sm">
-            {errors.general}
-          </p>
-        </div>
-      )}
-
       <button className="w-full flex items-center justify-center gap-3 bg-white/5 border border-white/10 hover:bg-white/8 hover:border-white/20 rounded-xl py-3 text-sm font-medium text-surface-900 transition-all mb-5">
         <GoogleIcon /> Continue with Google
       </button>
@@ -261,6 +256,15 @@ export function LoginForm({
       </div>
 
       <div className="flex flex-col gap-4 mb-2">
+        {/* General error */}
+      {errors.general && (
+        <div className="mb-5 px-4 py-3 rounded-lg bg-error bg-opacity-10 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+          <p className="text-error dark:text-red-400 text-sm">
+            {errors.general}
+            
+          </p>
+        </div>
+      )}
         <Input
           label="Email address"
           type="email"
@@ -362,6 +366,7 @@ function SignupForm({
   onShowPassword,
   showPassword2,
   onShowPassword2,
+  onNavigate,
 }) {
   const [form, setForm] = useState({
     name: "",
@@ -371,6 +376,7 @@ function SignupForm({
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -381,7 +387,6 @@ function SignupForm({
 
   const passwordStrength = getPasswordStrength(form.password);
   const strengthScore = Object.values(passwordStrength).filter(Boolean).length;
-
 
   const { signUp } = useAuth();
 
@@ -419,15 +424,9 @@ function SignupForm({
     }
 
     setLoading(true);
-    const res = await signUp(
-      form.name,
-      form.email,
-      form.phone,
-      form.password,
-    );
+    const res = await signUp(form.name, form.email, form.phone, form.password);
 
     if (res?.error) {
-
       setErrors({
         general: res.error?.message || "Creating account failed",
       });
@@ -435,11 +434,14 @@ function SignupForm({
       return;
     }
 
-    navigate("/auth");
+    console.log(res);
+    setSuccess(true);
+    setLoading(false);
+    return;
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
       <button
         onClick={onBack}
         className="flex items-center gap-2 text-sm text-surface-400 hover:text-surface-500 mb-6 transition-colors"
@@ -463,8 +465,6 @@ function SignupForm({
       <p className="text-sm text-surface-400 mb-6">
         Join thousands of happy customers
       </p>
-
-      {errors.general && <ResponseCard type="error" message={errors.general} />}
 
       <button className="w-full flex items-center justify-center gap-3 bg-white/5 border border-white/10 hover:bg-white/8 hover:border-white/20 rounded-xl py-3 text-sm font-medium text-surface-900 transition-all mb-5">
         <GoogleIcon /> Sign up with Google
@@ -642,6 +642,7 @@ function SignupForm({
           Privacy Policy
         </a>
       </p>
+      {errors.general && <ResponseCard type="error" message={errors.general} />}
 
       <Button
         className={`w-full mb-3`}
@@ -660,7 +661,7 @@ function SignupForm({
         }
         onClick={handleSignUp}
       >
-        {loading ? "Signing up..." : "Create Account →"}
+        {loading ? "Creating account..." : "Create Account →"}
       </Button>
 
       <p className="text-xs text-surface-500 text-center">
@@ -672,6 +673,16 @@ function SignupForm({
           Sign in
         </button>
       </p>
+
+      {success && (
+        <SuccessDialogBox
+          title="Your account has been created successfully."
+          message="Please check your email and click the verification link to verify your account before signing in."
+          onNavigate={onNavigate}
+          btnText="Sign Into your account"
+          onClose={() => setSuccess(false)}
+        />
+      )}
     </div>
   );
 }
@@ -894,7 +905,6 @@ export default function AuthPage({ navigate }) {
       } else navigate("/admin/overview");
     }
   }, []);
-  
 
   return (
     <div className="min-h-screen bg-surface-100 flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden">
@@ -963,6 +973,7 @@ export default function AuthPage({ navigate }) {
               onShowPassword={() => setShowPassword(!showPassword)}
               showPassword2={showPassword2}
               onShowPassword2={() => setShowPassword2(!showPassword2)}
+              onNavigate={() => setScreen("login")}
             />
           )}
           {screen === "guest" && (
@@ -973,3 +984,6 @@ export default function AuthPage({ navigate }) {
     </div>
   );
 }
+
+
+

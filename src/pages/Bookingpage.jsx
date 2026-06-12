@@ -15,8 +15,8 @@ import NavBar from "../components/NavBar";
 const steps = [
   ["Service", "/booking"],
   ["Schedule", "/booking/schedule"],
-  ["Location","/booking/location"],
-  ["Confirm","/booking/confirm"]
+  ["Location", "/booking/location"],
+  ["Confirm", "/booking/confirm"],
 ];
 
 function CardSkeleton() {
@@ -111,16 +111,12 @@ export default function BookingPage({ navigate, bookingData, onBook }) {
   }, [services, booking.service]);
 
   console.log(location);
-  
 
   return (
     <div className="min-h-screen bg-surface-100 pb-32">
       <NavBar />
       <div className="pt-20">
-        <ProgressSteps
-          steps={steps}
-          current={step}
-        />
+        <ProgressSteps steps={steps} current={step} />
 
         <div className="max-w-2xl mx-auto px-4 bg-surface-50 py-6">
           <TopBar title="Choose your service" />
@@ -142,77 +138,87 @@ export default function BookingPage({ navigate, bookingData, onBook }) {
               )}
 
               <div className="flex flex-col gap-4 mb-8">
-                {loading
-                  ? [1, 2, 3].map((i) => <CardSkeleton key={i} />)
-                  : services.map((s) => (
-                      <button
-                        key={s.id}
-                        onClick={() => {
-                          setService(s.id);
-                          setADDONS(s.addOns || []);
+                {loading ? (
+                  [1, 2, 3].map((i) => <CardSkeleton key={i} />)
+                ) : services.length === 0 ? (
+                  <div className="col-span-full">
+                    <ResponseCard
+                      title="No Services"
+                      message="No service packages are currently available. Please check back later."
+                      type="info"
+                    />
+                  </div>
+                ) : (
+                  services.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => {
+                        setService(s.id);
+                        setADDONS(s.addOns || []);
 
-                          updateBooking({
-                            service: s, // store FULL object
-                            addons: [],
-                            total: s.price,
-                          });
-                        }}
-                        className={`relative text-left p-5 rounded-2xl border transition-all ${selectedServiceId === s.id ? "border-primary-500 bg-primary-100 shadow-[0_0_24px_rgba(0,201,177,0.12)]" : "bg-surface-50 hover:bg-primary-50"}`}
-                      >
-                        <div className="flex items-start gap-4">
-                          <span className="text-3xl">{s.icon}</span>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-display text-lg text-surface-900">
-                                {s.name}
-                              </h3>
-                              <span className="text-xs text-surface-500">
-                                · {s.time}
-                              </span>
-                            </div>
-                            <p className="text-sm text-surface-400 mb-3">
-                              {s.desc}
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                              {s.includes.slice(0, 3).map((inc) => (
-                                <span
-                                  key={inc}
-                                  className="text-xs bg-white/5 border border-white/8 rounded-full px-2.5 py-0.5 text-surface-300"
-                                >
-                                  {inc}
-                                </span>
-                              ))}
-                              {s.includes.length > 3 && (
-                                <span className="text-xs text-surface-500">
-                                  +{s.includes.length - 3} more
-                                </span>
-                              )}
-                            </div>
+                        updateBooking({
+                          service: s, // store FULL object
+                          addons: [],
+                          total: s.price,
+                        });
+                      }}
+                      className={`relative text-left p-5 rounded-2xl border transition-all ${selectedServiceId === s.id ? "border-primary-500 bg-primary-100 shadow-[0_0_24px_rgba(0,201,177,0.12)]" : "bg-surface-50 hover:bg-primary-50"}`}
+                    >
+                      <div className="flex items-start gap-4">
+                        <span className="text-3xl">{s.icon}</span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-display text-lg text-surface-900">
+                              {s.name}
+                            </h3>
+                            <span className="text-xs text-surface-500">
+                              · {s.time}
+                            </span>
                           </div>
-                          <div className="text-right ml-2">
-                            <div className="font-display text-xl text-primary-600">
-                              {s.price.toLocaleString()}
-                            </div>
-                            <div className="text-xs text-surface-400">RWF</div>
+                          <p className="text-sm text-surface-400 mb-3">
+                            {s.desc}
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {s.includes.slice(0, 3).map((inc) => (
+                              <span
+                                key={inc}
+                                className="text-xs bg-white/5 border border-white/8 rounded-full px-2.5 py-0.5 text-surface-300"
+                              >
+                                {inc}
+                              </span>
+                            ))}
+                            {s.includes.length > 3 && (
+                              <span className="text-xs text-surface-500">
+                                +{s.includes.length - 3} more
+                              </span>
+                            )}
                           </div>
                         </div>
-                        {service === s.id && (
-                          <div className="absolute top-4 left-4 w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center">
-                            <svg
-                              width="10"
-                              height="10"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="#0A0F1E"
-                              strokeWidth="3"
-                              strokeLinecap="round"
-                            >
-                              <polyline points="20 6 9 17 4 12" />
-                            </svg>
+                        <div className="text-right ml-2">
+                          <div className="font-display text-xl text-primary-600">
+                            {s.price.toLocaleString()}
                           </div>
-                        )}
-                      </button>
-                    ))}
+                          <div className="text-xs text-surface-400">RWF</div>
+                        </div>
+                      </div>
+                      {service === s.id && (
+                        <div className="absolute top-4 left-4 w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center">
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#0A0F1E"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        </div>
+                      )}
+                    </button>
+                  ))
+                )}
               </div>
 
               {/* Add-ons */}

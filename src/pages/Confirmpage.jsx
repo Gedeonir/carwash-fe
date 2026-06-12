@@ -115,8 +115,8 @@ export const WashersList = ({ onClose }) => {
   }, []);
 
   const userLocation = {
-    lat: booking.location.coordinates?.lat,
-    lng: booking.location.coordinates?.lng,
+    lat: booking.location?.coordinates?.lat,
+    lng: booking.location?.coordinates?.lng,
   };
 
   const [filter, setFilter] = useState("all");
@@ -302,7 +302,7 @@ export default function ConfirmPage({ navigate, bookingData }) {
     ["Service", booking.service?.name || "N/A"],
     ["Date", booking.date || "N/A"],
     ["Time", booking.time || booking.customTime || "N/A"],
-    ["Location", booking.location.address || "N/A"],
+    ["Location", booking.location?.address || "N/A"],
     ["Duration", booking.service?.durationMinutes + "min" || "N/A"],
   ];
 
@@ -445,7 +445,7 @@ export default function ConfirmPage({ navigate, bookingData }) {
                 </span>
                 <div className="text-right">
                   <div className="font-display text-2xl text-primary-600">
-                    {total.toLocaleString()} RWF
+                    {total?.toLocaleString() || "0"} RWF
                   </div>
                   <div className="text-xs text-surface-500">
                     incl. all taxes
@@ -552,7 +552,7 @@ export default function ConfirmPage({ navigate, bookingData }) {
           >
             {loading
               ? "Processing..."
-              : `Confirm & Pay ${total.toLocaleString()} RWF →`}
+              : `Confirm & Pay ${total?.toLocaleString() || "0"} RWF →`}
           </Button>
         </div>
       </div>

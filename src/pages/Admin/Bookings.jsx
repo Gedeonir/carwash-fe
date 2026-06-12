@@ -107,7 +107,6 @@ export default function Bookings() {
     "cancelled",
   ];  
 
-console.log(bookRes);
   
 
   return (

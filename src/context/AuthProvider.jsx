@@ -170,6 +170,17 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+
+  const verifyEmail = useCallback(async (token) => {
+    try {
+      const res = await api.patch(`/auth/verify-email/${token}`);
+      return res.data;
+    } catch (err) {
+      console.log(err.response);
+      return { error: err.response?.data };
+    }
+  }, []);
+
   //services interface provided to context consumers
   const getServices = useCallback(async () => {
     try {
@@ -234,6 +245,9 @@ export function AuthProvider({ children }) {
         isAuthenticated: !!user,
         updateProfile,
         changePassword,
+        verifyEmail,
+
+
         fetchHistory,
         createBooking,
         getBooking,

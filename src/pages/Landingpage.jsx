@@ -208,7 +208,7 @@ export default function LandingPage({ navigate }) {
       {/* HOW IT WORKS */}
       <section className="py-12 px-6">
         <div className="w-full mx-auto">
-          <div className="text-left mb-16">
+          <div className="text-left mb-8">
             <Badge>How It Works</Badge>
             <h2 className="font-display text-4xl md:text-5xl text-surface-900 mt-4 mb-4">
               Three steps to a{" "}
@@ -242,9 +242,9 @@ export default function LandingPage({ navigate }) {
       </section>
 
       {/* SERVICES */}
-      <section className="py-12 px-6 bg-surface-800/30">
+      <section className="py-6 px-6 bg-surface-50">
         <div className="w-full mx-auto">
-          <div className="text-left mb-16">
+          <div className="text-left mb-4">
             <Badge variant="accent">Service Packages</Badge>
             <h2 className="font-display text-4xl md:text-5xl text-surface-900 mt-4">
               Pick your{" "}
@@ -262,17 +262,27 @@ export default function LandingPage({ navigate }) {
             />
           )}
           <div className="grid md:grid-cols-3 gap-6">
-            {loading
-              ? [1, 2, 3].map((i) => <ServiceCardSkeleton key={i} />)
-              : services.map((s) => (
-                  <ServiceCard
-                    key={s._id}
-                    service={s}
-                    selected={selectedSvc}
-                    onSelect={setSelectedSvc}
-                    onBook={handleBook}
-                  />
-                ))}
+            {loading ? (
+              [1, 2, 3].map((i) => <ServiceCardSkeleton key={i} />)
+            ) : services.length === 0 ? (
+              <div className="col-span-full">
+                <ResponseCard
+                  title="No Services"
+                  message="No service packages are currently available. Please check back later."
+                  type="info"
+                />
+              </div>
+            ) : (
+              services.map((s) => (
+                <ServiceCard
+                  key={s._id}
+                  service={s}
+                  selected={selectedSvc}
+                  onSelect={setSelectedSvc}
+                  onBook={handleBook}
+                />
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -280,7 +290,7 @@ export default function LandingPage({ navigate }) {
       {/* REVIEWS */}
       <section className="py-12 px-6">
         <div className="w-full mx-auto">
-          <div className="text-left mb-16">
+          <div className="text-left mb-8">
             <Badge variant="success">Customer Reviews</Badge>
             <h2 className="font-display text-4xl text-surface-900 mt-4">
               What our customers{" "}
